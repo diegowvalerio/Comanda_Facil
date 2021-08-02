@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Comanda Fácil</string>
+    <string name="btn_entrar">Entrar</string>
+    <string name="btn_produtos">Produtos</string>
+    <string name="btn_novoproduto">Novo</string>
+    <string name="btn_gravaproduto">Salvar</string>
+    <string name="btn_cameraproduto">Câmera</string>
+    <string name="btn_galeriaproduto">Galeria</string>
+
+</resources>
