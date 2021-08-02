@@ -1,9 +1,11 @@
 package br.com.dw.comanda_facil.telas.produto;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -19,6 +21,7 @@ import android.provider.MediaStore;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -29,11 +32,14 @@ import br.com.dw.comanda_facil.R;
 import br.com.dw.comanda_facil.banco.DatabaseHelper;
 import br.com.dw.comanda_facil.dao.Dao_Produto;
 import br.com.dw.comanda_facil.entidades.Produto;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 public class TelaProduto extends AppCompatActivity {
 
 
     EditText p_descricao,p_valor,p_ean;
+    ImageButton btn_leitura;
     CheckBox p_status;
     ImageView p_imagem;
     Produto produto = new Produto();
@@ -43,6 +49,7 @@ public class TelaProduto extends AppCompatActivity {
     static final int GALERIA = 2;
     static final int REQUEST_CODE_WRITE_EXTERNAL_STORAGE_PERMISSION=1;
     static final int REQUEST_CODE_CAMERA_STORAGE_PERMISSION = 1;
+    final Activity activity = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +68,20 @@ public class TelaProduto extends AppCompatActivity {
         p_ean = findViewById(R.id.p_ean);
         p_status = findViewById(R.id.p_status);
         p_imagem = findViewById(R.id.p_imagem);
-        //p_imagem.setImageBitmap(null);
+        btn_leitura = findViewById(R.id.btn_leitura);
+        btn_leitura.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                IntentIntegrator integrator = new IntentIntegrator(activity);
+                integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
+                integrator.setPrompt("Leitor de Código de Barras");
+                integrator.setCameraId(0);
+                integrator.setBeepEnabled(true);
+                integrator.setOrientationLocked(false);
+                integrator.initiateScan();
+
+            }
+        });
 
     }
 
@@ -85,8 +105,7 @@ public class TelaProduto extends AppCompatActivity {
                 Bitmap bitmap = (Bitmap) intent.getExtras().get("data");
                 p_imagem.setImageBitmap(bitmap);
             }
-        }
-        if (requestCode == GALERIA) {
+        }else if (requestCode == GALERIA) {
             if (resultCode == RESULT_OK) {
                 Uri selectedImage = intent.getData();
                 String[] filePathColumn = { MediaStore.Images.Media.DATA };
@@ -97,7 +116,19 @@ public class TelaProduto extends AppCompatActivity {
                 cursor.close();
                 p_imagem.setImageBitmap(BitmapFactory.decodeFile(picturePath));
             }
+        }else{
+            IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+            if (result != null) {
+                if (result.getContents() != null) {
+                    p_ean.setText(result.getContents());
+
+                }else {
+                    Toast.makeText(activity, "Leitor Cancelado", Toast.LENGTH_SHORT).show();
+                }
+
+            }
         }
+
     }
 
     public static byte[] imageViewToByte(ImageView image) {

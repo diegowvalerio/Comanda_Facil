@@ -3,6 +3,7 @@ package br.com.dw.comanda_facil.adapters;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,6 +55,7 @@ public class Adp_produtos extends BaseAdapter {
         id.setText(produto.getId().toString());
         if(produto.isStatus()){
             status.setText("Ativo");
+            status.setTextColor(Color.parseColor("#2A9186"));
         }else{
             status.setText("Inativo");
         }
