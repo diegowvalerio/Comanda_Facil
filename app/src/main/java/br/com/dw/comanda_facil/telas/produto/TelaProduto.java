@@ -12,6 +12,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -26,6 +27,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.sql.SQLException;
 
 import br.com.dw.comanda_facil.R;
@@ -37,7 +39,7 @@ import com.google.zxing.integration.android.IntentResult;
 
 public class TelaProduto extends AppCompatActivity {
 
-
+    int v =0;
     EditText p_descricao,p_valor,p_ean;
     ImageButton btn_leitura;
     CheckBox p_status;
@@ -49,6 +51,7 @@ public class TelaProduto extends AppCompatActivity {
     static final int GALERIA = 2;
     static final int REQUEST_CODE_WRITE_EXTERNAL_STORAGE_PERMISSION=1;
     static final int REQUEST_CODE_CAMERA_STORAGE_PERMISSION = 1;
+    static final int MAX_FILE_SIZE = 100 * 1024;
     final Activity activity = this;
 
     @Override
@@ -84,26 +87,36 @@ public class TelaProduto extends AppCompatActivity {
         });
 
     }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        preencheproduto();
+    }
 
     public void galeriaproduto(View view){
         writeStoragePermissionGranted();
         Intent intentPegaFoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI);
         startActivityForResult(intentPegaFoto,GALERIA);
+
     }
 
     public void cameraproduto(View view){
         cameraPermissionGranted();
         Intent it = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         startActivityForResult(it, CAMERA);
+
     }
 
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
+
         if (requestCode == CAMERA) {
             if (resultCode == RESULT_OK) {
                 Bitmap bitmap = (Bitmap) intent.getExtras().get("data");
                 p_imagem.setImageBitmap(bitmap);
+                Toast.makeText(activity, "Imagem adicionada com sucesso !", Toast.LENGTH_SHORT).show();
+                p_imagem.refreshDrawableState();
             }
         }else if (requestCode == GALERIA) {
             if (resultCode == RESULT_OK) {
@@ -115,6 +128,7 @@ public class TelaProduto extends AppCompatActivity {
                 String picturePath = cursor.getString(columnIndex);
                 cursor.close();
                 p_imagem.setImageBitmap(BitmapFactory.decodeFile(picturePath));
+
             }
         }else{
             IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
@@ -127,7 +141,7 @@ public class TelaProduto extends AppCompatActivity {
                 }
 
             }
-        }
+        }//7452575//
 
     }
 
@@ -135,7 +149,7 @@ public class TelaProduto extends AppCompatActivity {
         //Bitmap bitmap1 = ((BitmapDrawable) image.getDrawable()).getBitmap();
         Bitmap bitmap1 = bitmaps(image.getDrawable());
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap1.compress( Bitmap.CompressFormat.PNG, 100, stream );
+        bitmap1.compress( Bitmap.CompressFormat.JPEG, 50, stream );
         byte[] byteArray = stream.toByteArray();
         return byteArray;
     }
@@ -200,6 +214,27 @@ public class TelaProduto extends AppCompatActivity {
             }
         } else {
             return;
+        }
+    }
+
+    public void preencheproduto(){
+        if( v == 0) {
+            Bundle bundle = getIntent().getExtras();
+            if (bundle != null && bundle.containsKey("id")) {
+                try {
+                    produto = dao_produto.queryForId(bundle.getInt("id"));
+                    if (!produto.getId().equals("")) {
+                        p_descricao.setText(produto.getDescricao());
+                        p_valor.setText(Double.toString(produto.getValor()));
+                        p_status.setChecked(produto.isStatus());
+                        p_ean.setText(produto.getEan());
+                        p_imagem.setImageBitmap(BitmapFactory.decodeByteArray(produto.getImagem(), 0, produto.getImagem().length));
+                        v = 1;
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }

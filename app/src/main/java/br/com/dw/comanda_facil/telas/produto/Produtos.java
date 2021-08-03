@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 
@@ -20,7 +21,7 @@ import br.com.dw.comanda_facil.banco.DatabaseHelper;
 import br.com.dw.comanda_facil.dao.Dao_Produto;
 import br.com.dw.comanda_facil.entidades.Produto;
 
-public class Produtos extends AppCompatActivity {
+public class Produtos extends AppCompatActivity  implements  AdapterView.OnItemClickListener{
     private ListView listView;
     private DatabaseHelper banco;
     private Dao_Produto dao_produto;
@@ -37,6 +38,7 @@ public class Produtos extends AppCompatActivity {
 
         filtro = findViewById(R.id.p_filtro);
         listView = findViewById(R.id.listview_produtos);
+        listView.setOnItemClickListener(this);
     }
 
     @Override
@@ -97,6 +99,14 @@ public class Produtos extends AppCompatActivity {
 
     public void tela_produto(View view){
         Intent intent = new Intent(this, TelaProduto.class);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Produto produto = (Produto) parent.getItemAtPosition(position);
+        Intent intent = new Intent(this,TelaProduto.class);
+        intent.putExtra("id",produto.getId());
         startActivity(intent);
     }
 }
