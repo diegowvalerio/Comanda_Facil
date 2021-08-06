@@ -1,15 +1,21 @@
 package br.com.dw.comanda_facil.telas.produto;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -21,7 +27,7 @@ import br.com.dw.comanda_facil.banco.DatabaseHelper;
 import br.com.dw.comanda_facil.dao.Dao_Produto;
 import br.com.dw.comanda_facil.entidades.Produto;
 
-public class Produtos extends AppCompatActivity  implements  AdapterView.OnItemClickListener{
+public class Produtos extends AppCompatActivity  implements  AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
     private ListView listView;
     private DatabaseHelper banco;
     private Dao_Produto dao_produto;
@@ -30,6 +36,7 @@ public class Produtos extends AppCompatActivity  implements  AdapterView.OnItemC
     private List<Produto> produtos = new ArrayList<>();
     private List<Produto> produtos_filtrados = new ArrayList<>();
     private EditText filtro;
+    private AlertDialog alerta;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +46,7 @@ public class Produtos extends AppCompatActivity  implements  AdapterView.OnItemC
         filtro = findViewById(R.id.p_filtro);
         listView = findViewById(R.id.listview_produtos);
         listView.setOnItemClickListener(this);
+        listView.setOnItemLongClickListener(this);
     }
 
     @Override
@@ -108,5 +116,38 @@ public class Produtos extends AppCompatActivity  implements  AdapterView.OnItemC
         Intent intent = new Intent(this,TelaProduto.class);
         intent.putExtra("id",produto.getId());
         startActivity(intent);
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        final Produto p = (Produto) parent.getItemAtPosition(position);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        ArrayList<String> itens = new ArrayList<>();
+        itens.add("Sim");
+        itens.add("Não");
+        ArrayAdapter adapter = new ArrayAdapter(this, R.layout.item_alerta, itens);
+        builder.setTitle("Confirma Exclusão do Produto ?");
+        builder.setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
+            @RequiresApi (api = Build.VERSION_CODES.KITKAT)
+            @Override
+            public void onClick(DialogInterface arg0, int arg1) {
+                if(arg1 == 0){
+                    try {
+                        dao_produto.delete(p);
+                        Toast.makeText(Produtos.this, "Produto Excluido com Sucesso !", Toast.LENGTH_SHORT).show();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        Toast.makeText(Produtos.this, "Erro ao Excluir Produto!", Toast.LENGTH_SHORT).show();
+                    }
+                    alerta.dismiss();
+                    preenchelista();
+                }else if(arg1 ==1){
+                    alerta.dismiss();
+                }
+            }
+        });
+        alerta = builder.create();
+        alerta.show();
+        return true;
     }
 }

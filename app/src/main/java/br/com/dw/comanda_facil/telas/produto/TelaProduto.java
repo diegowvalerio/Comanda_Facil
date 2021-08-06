@@ -6,6 +6,8 @@ import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -13,13 +15,17 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -28,7 +34,9 @@ import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import br.com.dw.comanda_facil.R;
 import br.com.dw.comanda_facil.banco.DatabaseHelper;
@@ -54,6 +62,7 @@ public class TelaProduto extends AppCompatActivity {
     static final int MAX_FILE_SIZE = 100 * 1024;
     final Activity activity = this;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,6 +80,9 @@ public class TelaProduto extends AppCompatActivity {
         p_ean = findViewById(R.id.p_ean);
         p_status = findViewById(R.id.p_status);
         p_imagem = findViewById(R.id.p_imagem);
+        Drawable drawable= getResources().getDrawable(R.mipmap.comanda_facil);
+        p_imagem.setImageDrawable(drawable);
+        imageViewToByte_Camera(p_imagem);
         btn_leitura = findViewById(R.id.btn_leitura);
         btn_leitura.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,7 +128,7 @@ public class TelaProduto extends AppCompatActivity {
                 Bitmap bitmap = (Bitmap) intent.getExtras().get("data");
                 p_imagem.setImageBitmap(bitmap);
                 Toast.makeText(activity, "Imagem adicionada com sucesso !", Toast.LENGTH_SHORT).show();
-                p_imagem.refreshDrawableState();
+                imageViewToByte_Camera(p_imagem);
             }
         }else if (requestCode == GALERIA) {
             if (resultCode == RESULT_OK) {
@@ -127,8 +139,18 @@ public class TelaProduto extends AppCompatActivity {
                 int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
                 String picturePath = cursor.getString(columnIndex);
                 cursor.close();
-                p_imagem.setImageBitmap(BitmapFactory.decodeFile(picturePath));
 
+                ExifInterface exif = null;
+                try {
+                    exif = new ExifInterface(picturePath);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,ExifInterface.ORIENTATION_UNDEFINED);
+                Bitmap b = rotateBitmap(picturePath, orientation);
+                //p_imagem.setImageBitmap(BitmapFactory.decodeFile(picturePath));
+                p_imagem.setImageBitmap(b);
+                imageViewToByte_Galeria(p_imagem);
             }
         }else{
             IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
@@ -145,13 +167,67 @@ public class TelaProduto extends AppCompatActivity {
 
     }
 
-    public static byte[] imageViewToByte(ImageView image) {
+    public static Bitmap rotateBitmap(String picturePath, int orientation) {
+        Bitmap bitmap =BitmapFactory.decodeFile(picturePath);
+        Matrix matrix = new Matrix();
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_NORMAL:
+                return bitmap;
+            case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+                matrix.setScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                matrix.setRotate(180);
+                break;
+            case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                matrix.setRotate(180);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_TRANSPOSE:
+                matrix.setRotate(90);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                matrix.setRotate(90);
+                break;
+            case ExifInterface.ORIENTATION_TRANSVERSE:
+                matrix.setRotate(-90);
+                matrix.postScale(-1, 1);
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                matrix.setRotate(-90);
+                break;
+            default:
+                return bitmap;
+        }
+        try {
+            Bitmap bmRotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+            bitmap.recycle();
+            return bmRotated;
+        }
+        catch (OutOfMemoryError e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+    public void imageViewToByte_Camera(ImageView image) {
+        //Bitmap bitmap1 = ((BitmapDrawable) image.getDrawable()).getBitmap();
+        Bitmap bitmap1 = bitmaps(image.getDrawable());
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap1.compress( Bitmap.CompressFormat.PNG, 100, stream );
+        byte[] byteArray = stream.toByteArray();
+        produto.setImagem(byteArray);
+    }
+
+    public void imageViewToByte_Galeria(ImageView image) {
         //Bitmap bitmap1 = ((BitmapDrawable) image.getDrawable()).getBitmap();
         Bitmap bitmap1 = bitmaps(image.getDrawable());
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap1.compress( Bitmap.CompressFormat.JPEG, 50, stream );
         byte[] byteArray = stream.toByteArray();
-        return byteArray;
+        produto.setImagem(byteArray);
     }
 
     public static Bitmap bitmaps(Drawable drawable){
@@ -178,7 +254,7 @@ public class TelaProduto extends AppCompatActivity {
             produto.setValor(v);
             produto.setEan(p_ean.getText().toString());
             produto.setStatus(p_status.isChecked());
-            produto.setImagem(imageViewToByte(p_imagem));
+            //produto.setImagem(imageViewToByte(p_imagem));
             try{
                dao_produto.createOrUpdate(produto);
                 Toast.makeText(this, "Produto Salvo com Sucesso ! ", Toast.LENGTH_SHORT).show();
@@ -237,4 +313,5 @@ public class TelaProduto extends AppCompatActivity {
             }
         }
     }
+
 }
