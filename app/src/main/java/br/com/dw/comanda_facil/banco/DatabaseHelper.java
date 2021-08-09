@@ -14,7 +14,7 @@ import br.com.dw.comanda_facil.entidades.Produto;
 
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String databaseName = "BD.db";
-    private static final Integer databaseVersion = 1;
+    private static final Integer databaseVersion = 3;
 
     public DatabaseHelper(Context context) {
             super(context, databaseName, null, databaseVersion);

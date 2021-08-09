@@ -9,19 +9,20 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
 
-
     <application
-        android:requestLegacyExternalStorage="true"
         android:allowBackup="true"
         android:icon="@mipmap/comanda_facil"
         android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/comanda_facil_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".telas.produto.TelaProduto"></activity>
-        <activity android:name=".telas.produto.Produtos"
-                  android:configChanges="keyboardHidden|orientation|screenSize"
-                  android:windowSoftInputMode="stateHidden" />
+        <activity android:name=".telas.mesa.Mesas"></activity>
+        <activity android:name=".telas.produto.TelaProduto" />
+        <activity
+            android:name=".telas.produto.Produtos"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:windowSoftInputMode="stateHidden" />
         <activity android:name=".telas.Principal" />
         <activity android:name=".telas.Inicial">
             <intent-filter>
@@ -34,6 +35,16 @@
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="fullSensor"
             tools:replace="screenOrientation" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="br.com.dw.comanda_facil.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"></meta-data>
+        </provider>
     </application>
 
 </manifest>

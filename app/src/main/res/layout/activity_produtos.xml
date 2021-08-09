@@ -6,6 +6,23 @@
     android:layout_height="match_parent"
     tools:context=".telas.produto.Produtos">
 
+    <CheckBox
+        android:id="@+id/filtro_ativo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toEndOf="@+id/p_filtro"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/btn_leitura2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/filtro_ativo"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@android:drawable/ic_menu_mylocation" />
+
     <Button
         android:id="@+id/btn_novoproduto"
         android:background="@drawable/rounded_corner"
@@ -27,7 +44,7 @@
         android:ems="10"
         android:hint="Digite para buscar"
         android:inputType="textPersonName"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/filtro_ativo"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

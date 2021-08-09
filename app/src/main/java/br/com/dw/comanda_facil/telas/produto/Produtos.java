@@ -3,9 +3,11 @@ package br.com.dw.comanda_facil.telas.produto;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
@@ -13,9 +15,16 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.RadioGroup;
 import android.widget.Toast;
+
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -37,6 +46,10 @@ public class Produtos extends AppCompatActivity  implements  AdapterView.OnItemC
     private List<Produto> produtos_filtrados = new ArrayList<>();
     private EditText filtro;
     private AlertDialog alerta;
+    ImageButton btn_leitura;
+    CheckBox filtro_ativo;
+    final Activity activity = this;
+    int v =0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,45 +57,84 @@ public class Produtos extends AppCompatActivity  implements  AdapterView.OnItemC
         setContentView(R.layout.activity_produtos);
 
         filtro = findViewById(R.id.p_filtro);
+        filtro_ativo = findViewById(R.id.filtro_ativo);
+        filtro_ativo.setChecked(true);
+        filtro_ativo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Pesquisar_ativos();
+                adp_produtos = new Adp_produtos(Produtos.this, produtos_filtrados);
+                listView.setAdapter(adp_produtos);
+            }
+        });
+
         listView = findViewById(R.id.listview_produtos);
         listView.setOnItemClickListener(this);
         listView.setOnItemLongClickListener(this);
+        btn_leitura = findViewById(R.id.btn_leitura2);
+        btn_leitura.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                IntentIntegrator integrator = new IntentIntegrator(activity);
+                integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
+                integrator.setPrompt("Leitor de Código de Barras");
+                integrator.setCameraId(0);
+                integrator.setBeepEnabled(true);
+                integrator.setOrientationLocked(false);
+                integrator.initiateScan();
+
+            }
+        });
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        filtro.setText("");
+        //filtro.setText("");
         preenchelista();
     }
 
     public void preenchelista(){
-        banco =  new DatabaseHelper(this);
-        try{
-            dao_produto = new Dao_Produto(banco.getConnectionSource());
-            produtos = dao_produto.queryForAll();
-            adp_produtos = new Adp_produtos(this,produtos);
-            listView.setAdapter(adp_produtos);
-            listView.setTextFilterEnabled(true);
-            filtro.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                }
+        if( v == 0) {
+            banco = new DatabaseHelper(this);
+            try {
+                dao_produto = new Dao_Produto(banco.getConnectionSource());
+                produtos = dao_produto.queryForAll();
+                adp_produtos = new Adp_produtos(this, produtos);
+                listView.setAdapter(adp_produtos);
+                listView.setTextFilterEnabled(true);
+                filtro.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                    }
 
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    Pesquisar();
-                    adp_produtos = new Adp_produtos(Produtos.this,produtos_filtrados);
-                    listView.setAdapter(adp_produtos);
-                }
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        Pesquisar();
+                        adp_produtos = new Adp_produtos(Produtos.this, produtos_filtrados);
+                        listView.setAdapter(adp_produtos);
+                    }
 
-                @Override
-                public void afterTextChanged(Editable s) {
+                    @Override
+                    public void afterTextChanged(Editable s) {
 
-                }
-            });
-        }catch (SQLException e){
-            e.printStackTrace();
+                    }
+                });
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void Pesquisar_ativos(){
+        produtos_filtrados.clear();
+        for(int i = 0;i < produtos.size();i++){
+            Produto data =produtos.get(i);
+            if(!filtro.getText().equals("")){
+                Pesquisar();
+            }else if(filtro_ativo.isChecked() == data.isStatus()){
+                produtos_filtrados.add(data);
+            }
         }
     }
 
@@ -96,7 +148,7 @@ public class Produtos extends AppCompatActivity  implements  AdapterView.OnItemC
                 String condicao2 = data.getId().toString();
                 String condicao3 = data.getEan();
                 String condicao4 = Double.toString(data.getValor());
-                if(condicao.contains(pq) || condicao2.contains(pq) || condicao3.contains(pq) || condicao4.contains(pq)){
+                if((condicao.contains(pq) || condicao2.contains(pq) || condicao3.contains(pq) || condicao4.contains(pq)) && (filtro_ativo.isChecked() == data.isStatus())){
                     produtos_filtrados.add(data);
                 }
             }else{
@@ -149,5 +201,20 @@ public class Produtos extends AppCompatActivity  implements  AdapterView.OnItemC
         alerta = builder.create();
         alerta.show();
         return true;
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+        if (result != null) {
+            if (result.getContents() != null) {
+                filtro.setText(result.getContents());
+                Pesquisar();
+                v = 1;
+            } else {
+                Toast.makeText(activity, "Leitor Cancelado", Toast.LENGTH_SHORT).show();
+            }
+
+        }
     }
 }

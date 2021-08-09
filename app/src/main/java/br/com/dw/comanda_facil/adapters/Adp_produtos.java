@@ -11,6 +11,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.ByteArrayOutputStream;
 import java.util.List;
 
 import br.com.dw.comanda_facil.R;
@@ -59,10 +60,16 @@ public class Adp_produtos extends BaseAdapter {
         }else{
             status.setText("Inativo");
         }
-        Bitmap bitmap = BitmapFactory.decodeByteArray(produto.getImagem(), 0, produto.getImagem().length);
-        imagem.setImageBitmap(bitmap);
+
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = 2;
+        options.inJustDecodeBounds = false;
+        byte[] b = produto.getImagem();
+        imagem.setImageBitmap(BitmapFactory.decodeByteArray(b,0,b.length,options));
         valor.setText("R$ "+Double.toString(produto.getValor()));
 
         return view;
     }
+
 }

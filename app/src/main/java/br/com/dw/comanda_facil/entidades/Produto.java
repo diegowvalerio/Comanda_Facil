@@ -20,6 +20,7 @@ public class Produto {
     @DatabaseField(dataType= DataType.BYTE_ARRAY)
     private byte[] imagem;
 
+
     public Integer getId() {
         return id;
     }

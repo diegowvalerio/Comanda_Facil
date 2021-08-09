@@ -1,12 +1,15 @@
 package br.com.dw.comanda_facil.telas.produto;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
 
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -22,6 +25,7 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.AdapterView;
@@ -34,9 +38,15 @@ import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import br.com.dw.comanda_facil.R;
 import br.com.dw.comanda_facil.banco.DatabaseHelper;
@@ -61,6 +71,8 @@ public class TelaProduto extends AppCompatActivity {
     static final int REQUEST_CODE_CAMERA_STORAGE_PERMISSION = 1;
     static final int MAX_FILE_SIZE = 100 * 1024;
     final Activity activity = this;
+    String currentPhotoPath;
+    Uri photoURI;
 
 
     @Override
@@ -82,7 +94,7 @@ public class TelaProduto extends AppCompatActivity {
         p_imagem = findViewById(R.id.p_imagem);
         Drawable drawable= getResources().getDrawable(R.mipmap.comanda_facil);
         p_imagem.setImageDrawable(drawable);
-        imageViewToByte_Camera(p_imagem);
+        imageViewToByte_Galeria(p_imagem);
         btn_leitura = findViewById(R.id.btn_leitura);
         btn_leitura.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,20 +127,41 @@ public class TelaProduto extends AppCompatActivity {
     public void cameraproduto(View view){
         cameraPermissionGranted();
         Intent it = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(it, CAMERA);
+        if(it.resolveActivity(getPackageManager()) !=null){
+            File foto = null;
+            try {
+                foto = createImageFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if(foto !=null){
+                photoURI = FileProvider.getUriForFile(this,"br.com.dw.comanda_facil.fileprovider",foto);
+                it.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(it, CAMERA);
+            }
+        }
 
     }
-
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
 
         if (requestCode == CAMERA) {
             if (resultCode == RESULT_OK) {
-                Bitmap bitmap = (Bitmap) intent.getExtras().get("data");
-                p_imagem.setImageBitmap(bitmap);
+                ExifInterface exif = null;
+                try {
+                    exif = new ExifInterface(currentPhotoPath);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,ExifInterface.ORIENTATION_UNDEFINED);
+                Bitmap b = rotateBitmap(currentPhotoPath, orientation);
+                p_imagem.setImageBitmap(b);
                 Toast.makeText(activity, "Imagem adicionada com sucesso !", Toast.LENGTH_SHORT).show();
-                imageViewToByte_Camera(p_imagem);
+                imageViewToByte_Galeria(p_imagem);
+                File f = new File(currentPhotoPath);
+                f.delete();
+
             }
         }else if (requestCode == GALERIA) {
             if (resultCode == RESULT_OK) {
@@ -165,6 +198,23 @@ public class TelaProduto extends AppCompatActivity {
             }
         }//7452575//
 
+    }
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        storageDir.mkdirs();
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        currentPhotoPath = image.getAbsolutePath();
+        return image;
     }
 
     public static Bitmap rotateBitmap(String picturePath, int orientation) {
@@ -209,16 +259,6 @@ public class TelaProduto extends AppCompatActivity {
             e.printStackTrace();
             return null;
         }
-    }
-
-
-    public void imageViewToByte_Camera(ImageView image) {
-        //Bitmap bitmap1 = ((BitmapDrawable) image.getDrawable()).getBitmap();
-        Bitmap bitmap1 = bitmaps(image.getDrawable());
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap1.compress( Bitmap.CompressFormat.PNG, 100, stream );
-        byte[] byteArray = stream.toByteArray();
-        produto.setImagem(byteArray);
     }
 
     public void imageViewToByte_Galeria(ImageView image) {
