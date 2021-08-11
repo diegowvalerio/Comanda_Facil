@@ -288,7 +288,7 @@ public class TelaProduto extends AppCompatActivity {
 
     public void salvarproduto(View view){
        if(p_descricao.getText().length() >0 && p_valor.getText().length()>0){
-            produto.setDescricao(p_descricao.getText().toString());
+            produto.setDescricao(p_descricao.getText().toString().toUpperCase());
             double v = 0;
             v = Double.parseDouble(p_valor.getText().toString());
             produto.setValor(v);

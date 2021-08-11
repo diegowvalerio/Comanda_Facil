@@ -100,7 +100,8 @@ public class Produtos extends AppCompatActivity  implements  AdapterView.OnItemC
             try {
                 dao_produto = new Dao_Produto(banco.getConnectionSource());
                 produtos = dao_produto.queryForAll();
-                adp_produtos = new Adp_produtos(this, produtos);
+                Pesquisar_ativos();
+                adp_produtos = new Adp_produtos(this, produtos_filtrados);
                 listView.setAdapter(adp_produtos);
                 listView.setTextFilterEnabled(true);
                 filtro.addTextChangedListener(new TextWatcher() {

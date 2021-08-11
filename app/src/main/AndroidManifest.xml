@@ -17,7 +17,10 @@
         android:roundIcon="@mipmap/comanda_facil_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".telas.mesa.Mesas"></activity>
+        <activity android:name=".telas.mesa.TelaMesa"></activity>
+        <activity android:name=".telas.mesa.Mesas"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:windowSoftInputMode="stateHidden" />
         <activity android:name=".telas.produto.TelaProduto" />
         <activity
             android:name=".telas.produto.Produtos"
@@ -43,7 +46,7 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"></meta-data>
+                android:resource="@xml/file_paths" />
         </provider>
     </application>
 

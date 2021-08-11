@@ -10,6 +10,7 @@ import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
 
+import br.com.dw.comanda_facil.entidades.Mesa;
 import br.com.dw.comanda_facil.entidades.Produto;
 
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
@@ -25,7 +26,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         try{
             database.execSQL("PRAGMA foreign_keys = ON");
             //cria as tabelas
-            TableUtils.createTable(connectionSource, Produto.class);
+            TableUtils.createTableIfNotExists(connectionSource, Produto.class);
+            TableUtils.createTableIfNotExists(connectionSource, Mesa.class);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -38,6 +40,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         //excluir tabelas e gerar novamente
         try {
             TableUtils.dropTable(connectionSource, Produto.class,true);
+            TableUtils.dropTable(connectionSource, Mesa.class,true);
 
             onCreate(database, connectionSource);
         } catch (SQLException e) {
