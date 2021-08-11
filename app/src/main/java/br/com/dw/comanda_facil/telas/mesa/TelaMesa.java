@@ -23,6 +23,7 @@ public class TelaMesa extends AppCompatActivity {
     DatabaseHelper banco;
     Mesa mesa = new Mesa();
     Dao_Mesa dao_mesa;
+    int v =0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,5 +57,29 @@ public class TelaMesa extends AppCompatActivity {
             Toast.makeText(this, "Preencha o nome da Mesa !", Toast.LENGTH_SHORT).show();
         }
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        preenche();
+    }
+
+    private void preenche() {
+        if( v == 0) {
+            Bundle bundle = getIntent().getExtras();
+            if (bundle != null && bundle.containsKey("id")) {
+                try {
+                    mesa = dao_mesa.queryForId(bundle.getInt("id"));
+                    if (!mesa.getId().equals("")) {
+                        m_descricao.setText(mesa.getDescricao());
+                        m_ativo.setChecked(mesa.isStatus());
+                        v = 1;
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }

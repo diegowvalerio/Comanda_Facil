@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -24,7 +25,7 @@ import br.com.dw.comanda_facil.dao.Dao_Mesa;
 import br.com.dw.comanda_facil.entidades.Mesa;
 
 
-public class Mesas extends AppCompatActivity {
+public class Mesas extends AppCompatActivity implements AdapterView.OnItemClickListener {
     private ListView listView;
     private DatabaseHelper banco;
     private Dao_Mesa dao_mesa;
@@ -54,10 +55,19 @@ public class Mesas extends AppCompatActivity {
             }
         });
         listView = findViewById(R.id.listview_mesas);
+        listView.setOnItemClickListener(this);
     }
 
     public void tela_mesa(View view){
         Intent intent = new Intent(this, TelaMesa.class);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Mesa mesa = (Mesa) parent.getItemAtPosition(position);
+        Intent intent = new Intent(this, TelaMesa.class);
+        intent.putExtra("id",mesa.getId());
         startActivity(intent);
     }
 
