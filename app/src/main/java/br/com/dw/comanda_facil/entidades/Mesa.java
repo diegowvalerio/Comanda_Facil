@@ -14,6 +14,8 @@ public class Mesa {
     @DatabaseField(dataType = DataType.BOOLEAN)
     private boolean status;
 
+    private int totalcomandas;
+
 
     public Integer getId() {
         return id;
@@ -39,4 +41,11 @@ public class Mesa {
         this.descricao = descricao;
     }
 
+    public int getTotalcomandas() {
+        return totalcomandas;
+    }
+
+    public void setTotalcomandas(int totalcomandas) {
+        this.totalcomandas = totalcomandas;
+    }
 }

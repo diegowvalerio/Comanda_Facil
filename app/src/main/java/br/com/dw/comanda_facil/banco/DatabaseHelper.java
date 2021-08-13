@@ -10,12 +10,14 @@ import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
 
+import br.com.dw.comanda_facil.entidades.Comanda;
+import br.com.dw.comanda_facil.entidades.Comanda_Item;
 import br.com.dw.comanda_facil.entidades.Mesa;
 import br.com.dw.comanda_facil.entidades.Produto;
 
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String databaseName = "BD.db";
-    private static final Integer databaseVersion = 3;
+    private static final Integer databaseVersion = 4;
 
     public DatabaseHelper(Context context) {
             super(context, databaseName, null, databaseVersion);
@@ -28,6 +30,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             //cria as tabelas
             TableUtils.createTableIfNotExists(connectionSource, Produto.class);
             TableUtils.createTableIfNotExists(connectionSource, Mesa.class);
+            TableUtils.createTableIfNotExists(connectionSource, Comanda.class);
+            TableUtils.createTableIfNotExists(connectionSource, Comanda_Item.class);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -39,6 +43,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion) {
         //excluir tabelas e gerar novamente
         try {
+            TableUtils.dropTable(connectionSource, Comanda_Item.class,true);
+            TableUtils.dropTable(connectionSource, Comanda.class,true);
             TableUtils.dropTable(connectionSource, Produto.class,true);
             TableUtils.dropTable(connectionSource, Mesa.class,true);
 

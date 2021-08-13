@@ -2,6 +2,8 @@ package br.com.dw.comanda_facil.adapters;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,7 +45,9 @@ public class Adp_Comanda extends BaseAdapter {
         TextView descricao =view.findViewById(R.id.adp_gridview_descricao);
         Mesa mesa = mesas.get(position);
         descricao.setText(mesa.getDescricao());
-
+        if(mesa.getTotalcomandas()>0){
+            view.setBackgroundResource(R.drawable.grid_row_border_cheio);
+        }
         return view;
     }
 

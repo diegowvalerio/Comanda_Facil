@@ -17,8 +17,12 @@
         android:roundIcon="@mipmap/comanda_facil_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".telas.mesa.TelaMesa"></activity>
-        <activity android:name=".telas.mesa.Mesas"
+        <activity android:name=".telas.comanda.Comanda_Produto"></activity>
+        <activity android:name=".telas.comanda.Comanda_Pedido" />
+        <activity android:name=".telas.comanda.Comandas_Mesa" />
+        <activity android:name=".telas.mesa.TelaMesa" />
+        <activity
+            android:name=".telas.mesa.Mesas"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:windowSoftInputMode="stateHidden" />
         <activity android:name=".telas.produto.TelaProduto" />
