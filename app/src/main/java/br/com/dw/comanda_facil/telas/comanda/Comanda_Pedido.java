@@ -176,7 +176,7 @@ public class Comanda_Pedido extends AppCompatActivity {
     }
 
     private void preenche_itens() {
-        NumberFormat formatter = new DecimalFormat("#0,00");
+        DecimalFormat df = new DecimalFormat("R$ #,###.00");
 
         if(v == 0) {
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm");
@@ -188,7 +188,7 @@ public class Comanda_Pedido extends AppCompatActivity {
                     cliente.setText(comanda.getCliente());
                     qtdepessoas.setText(comanda.getQtde_pessoas().toString());
                     dataabertura.setText(sdf.format(comanda.getData_abertura()));
-                    vltotal.setText(formatter.format(comanda.getValor_total()));
+                    vltotal.setText(df.format(comanda.getValor_total()));
 
                     adp_comandaItem = new Adp_ComandaItem(this, comanda_itens);
                     listView.setAdapter(adp_comandaItem);
@@ -243,7 +243,7 @@ public class Comanda_Pedido extends AppCompatActivity {
 
     public void calculatotal(){
         int totalitens =0,totalaberto =0,totalparcial = 0,totalatendido = 0;
-        DecimalFormat df = new DecimalFormat("#,###.00");
+        DecimalFormat df = new DecimalFormat("R$ #,###.00");
 
         total = 0;
         if(comanda.getId() != null) {
@@ -263,8 +263,8 @@ public class Comanda_Pedido extends AppCompatActivity {
                         }
                         totalitens++;
                     }
-                    df.format(total);
-                    vltotal.setText(Double.toString(total));
+                    //df.format(total);
+                    vltotal.setText(df.format(total));
                     comanda.setValor_total(total);
                 }
                 adp_comandaItem = new Adp_ComandaItem(this, comanda_itens);
