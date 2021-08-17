@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -38,7 +39,7 @@ import br.com.dw.comanda_facil.entidades.Comanda_Item;
 import br.com.dw.comanda_facil.entidades.Produto;
 import br.com.dw.comanda_facil.telas.produto.Produtos;
 
-public class Comanda_Pedido extends AppCompatActivity {
+public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
 
     EditText cliente,qtdepessoas,dataabertura;
     TextView vltotal,vlpago,vltroco,vldesconto,vlrecebido;
@@ -84,7 +85,8 @@ public class Comanda_Pedido extends AppCompatActivity {
         vlrecebido.setText("0");
 
         listView = findViewById(R.id.listview_itens);
-
+        listView.setOnItemClickListener(this);
+        listView.setOnItemLongClickListener(this);
         banco = new DatabaseHelper(this);
         try {
             dao_comanda = new Dao_Comanda(banco.getConnectionSource());
@@ -113,6 +115,59 @@ public class Comanda_Pedido extends AppCompatActivity {
         super.onStart();
         preenche_itens();
         pegaproduto();
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+
+        return true;
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        final DecimalFormat df = new DecimalFormat("#,###.00");
+        final Comanda_Item item = (Comanda_Item) parent.getItemAtPosition(position);
+
+        AlertDialog.Builder mensagem = new AlertDialog.Builder(this);
+        mensagem.setTitle(item.getProduto().getDescricao());
+        mensagem.setMessage("Editando a quantidade:");
+        final EditText input = new EditText(this);
+        input.setText(item.getQtde().toString());
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        mensagem.setView(input);
+        mensagem.setPositiveButton("Editar", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                if(input.getText().length()>0 ) {
+                    try {
+                        if(item.getStatus().equals("ATENDIDO") && Integer.parseInt(input.getText().toString())> item.getQtde()) {
+                            item.setStatus("PARCIAL");
+                        }
+                        item.setQtde(Integer.parseInt(input.getText().toString()));
+                        double total = item.getValor_unitario() * item.getQtde();
+                        df.format(total);
+                        item.setValor_total(total);
+                        item.setData_pedido(new Date());
+                        dao_comanda_item.createOrUpdate(item);
+                        calculatotal();
+                        dao_comanda.createOrUpdate(comanda);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }else{
+                    Toast.makeText(Comanda_Pedido.this, "Quantidade invalida !", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+        });
+        mensagem.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        mensagem.show();
+
     }
 
     private void pegaproduto() {
@@ -283,4 +338,5 @@ public class Comanda_Pedido extends AppCompatActivity {
             }
         }
     }
+
 }
