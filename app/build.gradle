@@ -6,11 +6,11 @@ android {
 
     defaultConfig {
         applicationId "br.com.dw.comanda_facil"
-        minSdkVersion 14
+        minSdkVersion 16
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
-
+        multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -28,8 +28,10 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'com.google.android.material:material:1.2.1'
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    androidTestImplementation 'androidx.test:runner:1.2.0-alpha03'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0-alpha03'
+
+    implementation 'com.google.android.gms:play-services-ads:20.2.0'
 
     // maven
     implementation group: 'com.j256.ormlite', name: 'ormlite-core', version: '4.48'
@@ -37,5 +39,6 @@ dependencies {
     implementation group: 'com.j256.ormlite', name: 'ormlite-android', version: '4.48'
     implementation 'com.google.zxing:core:3.2.1'
     implementation 'com.journeyapps:zxing-android-embedded:3.2.0@aar'
+
 
 }

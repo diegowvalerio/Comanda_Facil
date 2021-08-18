@@ -9,6 +9,7 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,8 @@ import br.com.dw.comanda_facil.entidades.Mesa;
 import br.com.dw.comanda_facil.telas.comanda.Comandas_Mesa;
 import br.com.dw.comanda_facil.telas.mesa.Mesas;
 import br.com.dw.comanda_facil.telas.produto.Produtos;
+import br.com.dw.comanda_facil.telas.produto.TelaProduto;
+import br.com.dw.comanda_facil.util.Util;
 
 public class Principal extends AppCompatActivity implements AdapterView.OnItemClickListener {
     GridView gridView;
@@ -41,14 +44,23 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemCl
         gridView.setOnItemClickListener(this);
     }
 
-    public void tela_produtos(View view){
-        Intent intent = new Intent(this, Produtos.class);
-        startActivity(intent);
+    public void tela_produtos(View view) throws IOException, InterruptedException {
+        if(Util.isOnline()) {
+            Intent intent = new Intent(this, Produtos.class);
+            startActivity(intent);
+        }else{
+            Toast.makeText(this, "Nescessário acesso a internet ! ", Toast.LENGTH_SHORT).show();
+        }
     }
 
-    public void tela_mesas(View view){
-        Intent intent = new Intent(this, Mesas.class);
-        startActivity(intent);
+    public void tela_mesas(View view) throws IOException, InterruptedException {
+        if(Util.isOnline()) {
+            Intent intent = new Intent(this, Mesas.class);
+            startActivity(intent);
+        }else{
+            Toast.makeText(this, "Nescessário acesso a internet ! ", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
     @Override
@@ -65,7 +77,7 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemCl
             dao_comanda = new Dao_Comanda(banco.getConnectionSource());
 
             mesas = dao_mesa.queryBuilder().where().eq("status",true).query();
-            String[] status = {"ABERTO","PARCIAL","ATENDIDO"};
+            Object[] status = {"ABERTO","PARCIAL","ATENDIDO"};
             for(Mesa m:mesas){
                 comadas.clear();
                 comadas = dao_comanda.queryBuilder().where().eq("mesa",m.getId()).and().in("status",status).query();

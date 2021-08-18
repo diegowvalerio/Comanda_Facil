@@ -1,21 +1,43 @@
 package br.com.dw.comanda_facil.telas;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.nfc.Tag;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
+
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
+
+import java.io.IOException;
 
 import br.com.dw.comanda_facil.R;
+import br.com.dw.comanda_facil.util.Util;
 
 public class Inicial extends AppCompatActivity {
     static final int REQUEST_CODE_WRITE_EXTERNAL_STORAGE_PERMISSION=1;
     static final int REQUEST_CODE_CAMERA_STORAGE_PERMISSION = 1;
-
+    //anuncio
+    private AdView mAdView;
+    private InterstitialAd mInterstitialAd;
+    int n =0;
+    //
+    @SuppressLint("MissingPermission")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,11 +46,58 @@ public class Inicial extends AppCompatActivity {
         writeStoragePermissionGranted();
         cameraPermissionGranted();
         //fim permissões
+
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
+
+        mAdView = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
+
+        chamaanuncio();
+
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(n == 1) {
+            chamaanuncio();
+        }
     }
 
-    public void tela_principal(View view){
-        Intent intent = new Intent(this,Principal.class);
-        startActivity(intent);
+    private void chamaanuncio() {
+        AdRequest adRequest = new AdRequest.Builder().build();
+        InterstitialAd.load(this,"ca-app-pub-3925364440483118/6814590401", adRequest,
+                new InterstitialAdLoadCallback() {
+                    @Override
+                    public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                        // The mInterstitialAd reference will be null until
+                        // an ad is loaded.
+                        mInterstitialAd = interstitialAd;
+                    }
+
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                        // Handle the error
+                        mInterstitialAd = null;
+                    }
+                });
+        n = 1;
+    }
+
+    public void tela_principal(View view) throws IOException, InterruptedException {
+        if(Util.isOnline()) {
+            Intent intent = new Intent(this, Principal.class);
+            startActivity(intent);
+            if (mInterstitialAd != null) {
+                mInterstitialAd.show(this);
+            }
+        }else{
+            Toast.makeText(this, "Nescessário acesso a internet ! ", Toast.LENGTH_SHORT).show();
+        }
     }
 
 

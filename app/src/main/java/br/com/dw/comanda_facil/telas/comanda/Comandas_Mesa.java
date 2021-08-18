@@ -1,5 +1,6 @@
 package br.com.dw.comanda_facil.telas.comanda;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -8,6 +9,11 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -33,6 +39,8 @@ public class Comandas_Mesa extends AppCompatActivity implements AdapterView.OnIt
     ListView listView;
     Adp_ComandasMesas adp_comandasMesas;
 
+    private InterstitialAd mInterstitialAd;
+    int n = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,12 +49,17 @@ public class Comandas_Mesa extends AppCompatActivity implements AdapterView.OnIt
         mesaselecionada = findViewById(R.id.mesaselecionada);
         listView = findViewById(R.id.listvew_pedidos);
         listView.setOnItemClickListener(this);
+
+        chamaanuncio();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         preenche();
+        if(n == 1) {
+            chamaanuncio();
+        }
     }
 
     public void comanda_pedido(View view){
@@ -67,7 +80,7 @@ public class Comandas_Mesa extends AppCompatActivity implements AdapterView.OnIt
                 mesa = dao_mesa.queryForId(idmesa);
                 mesaselecionada.setText(mesa.getDescricao());
 
-                String[] status = {"ABERTO","PARCIAL","ATENDIDO"};
+                Object[] status = {"ABERTO","PARCIAL","ATENDIDO"};
                 dao_comanda = new Dao_Comanda(banco.getConnectionSource());
                 comandas = dao_comanda.queryBuilder().where().eq("mesa",idmesa).and().in("status",status).query();
                 adp_comandasMesas = new Adp_ComandasMesas(this,comandas);
@@ -86,5 +99,28 @@ public class Comandas_Mesa extends AppCompatActivity implements AdapterView.OnIt
         Intent intent = new Intent(this, Comanda_Pedido.class);
         intent.putExtra("idcomanda",comanda.getId());
         startActivity(intent);
+        if (mInterstitialAd != null) {
+            mInterstitialAd.show(this);
+        }
+    }
+
+    private void chamaanuncio() {
+        AdRequest adRequest = new AdRequest.Builder().build();
+        InterstitialAd.load(this,"ca-app-pub-3925364440483118/3335699766", adRequest,
+                new InterstitialAdLoadCallback() {
+                    @Override
+                    public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                        // The mInterstitialAd reference will be null until
+                        // an ad is loaded.
+                        mInterstitialAd = interstitialAd;
+                    }
+
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                        // Handle the error
+                        mInterstitialAd = null;
+                    }
+                });
+        n = 1;
     }
 }

@@ -6,6 +6,19 @@
     android:layout_height="match_parent"
     tools:context=".telas.produto.Produtos">
 
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/adView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        app:adSize="SMART_BANNER"
+        app:adUnitId="ca-app-pub-3925364440483118/7307746128"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="MissingConstraints"></com.google.android.gms.ads.AdView>
+
     <CheckBox
         android:id="@+id/filtro_ativo"
         android:layout_width="wrap_content"
@@ -25,16 +38,16 @@
 
     <Button
         android:id="@+id/btn_novoproduto"
-        android:background="@drawable/rounded_corner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="2dp"
+        android:background="@drawable/rounded_corner"
         android:onClick="tela_produto"
         android:text="@string/btn_novoproduto"
         android:textAllCaps="false"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/adView"
         app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
@@ -56,6 +69,8 @@
         app:layout_constraintBottom_toTopOf="@+id/btn_novoproduto"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/p_filtro" />
+        app:layout_constraintTop_toBottomOf="@+id/p_filtro" >
+
+    </ListView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

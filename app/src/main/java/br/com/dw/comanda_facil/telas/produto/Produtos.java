@@ -23,9 +23,15 @@ import android.widget.ListView;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +41,7 @@ import br.com.dw.comanda_facil.adapters.Adp_produtos;
 import br.com.dw.comanda_facil.banco.DatabaseHelper;
 import br.com.dw.comanda_facil.dao.Dao_Produto;
 import br.com.dw.comanda_facil.entidades.Produto;
+import br.com.dw.comanda_facil.util.Util;
 
 public class Produtos extends AppCompatActivity  implements  AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
     private ListView listView;
@@ -51,10 +58,21 @@ public class Produtos extends AppCompatActivity  implements  AdapterView.OnItemC
     final Activity activity = this;
     int v =0;
 
+    private AdView mAdView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_produtos);
+
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
+
+        mAdView = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
 
         filtro = findViewById(R.id.p_filtro);
         filtro_ativo = findViewById(R.id.filtro_ativo);
@@ -158,17 +176,31 @@ public class Produtos extends AppCompatActivity  implements  AdapterView.OnItemC
         }
     }
 
-    public void tela_produto(View view){
+    public void tela_produto(View view) throws IOException, InterruptedException {
+        if(Util.isOnline()) {
         Intent intent = new Intent(this, TelaProduto.class);
         startActivity(intent);
+        }else{
+            Toast.makeText(this, "Nescessário acesso a internet ! ", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Produto produto = (Produto) parent.getItemAtPosition(position);
-        Intent intent = new Intent(this,TelaProduto.class);
-        intent.putExtra("id",produto.getId());
-        startActivity(intent);
+        try {
+            if(Util.isOnline()) {
+                Produto produto = (Produto) parent.getItemAtPosition(position);
+                Intent intent = new Intent(this, TelaProduto.class);
+                intent.putExtra("id", produto.getId());
+                startActivity(intent);
+            }else{
+                Toast.makeText(this, "Nescessário acesso a internet ! ", Toast.LENGTH_SHORT).show();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
