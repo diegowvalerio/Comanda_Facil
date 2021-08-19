@@ -63,6 +63,7 @@ public class Comandas_Mesa extends AppCompatActivity implements AdapterView.OnIt
     }
 
     public void comanda_pedido(View view){
+        chamaanuncio();
         Intent intent = new Intent(this, Comanda_Pedido.class);
         intent.putExtra("id",idmesa);
         startActivity(intent);
@@ -95,13 +96,13 @@ public class Comandas_Mesa extends AppCompatActivity implements AdapterView.OnIt
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        if (mInterstitialAd != null) {
+            mInterstitialAd.show(this);
+        }
         Comanda comanda = (Comanda) parent.getItemAtPosition(position);
         Intent intent = new Intent(this, Comanda_Pedido.class);
         intent.putExtra("idcomanda",comanda.getId());
         startActivity(intent);
-        if (mInterstitialAd != null) {
-            mInterstitialAd.show(this);
-        }
     }
 
     private void chamaanuncio() {

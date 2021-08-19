@@ -7,11 +7,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -55,7 +57,7 @@ public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnI
     Dao_Produto dao_produto;
     Adp_ComandaItem adp_comandaItem;
     Produto produto;
-
+    private AlertDialog alerta;
     Date d = new Date();
     int idmesa =0;
     double total,pago,troco,desconto,recebido;
@@ -119,8 +121,24 @@ public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnI
 
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        ArrayList<String> itens = new ArrayList<>();
+        itens.add("Atender");
+        itens.add("Excluir");
+        ArrayAdapter adapter = new ArrayAdapter(this, R.layout.item_alerta, itens);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("O que deseja fazer ?");
+        builder.setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface arg0, int arg1) {
+                        if(arg1 == 0){ //atender
 
+                        }else if(arg1 ==1){//Excluir
 
+                        }
+                        alerta.dismiss();
+                    }
+        });
+        alerta = builder.create();
+        alerta.show();
         return true;
     }
 
@@ -139,22 +157,32 @@ public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnI
         mensagem.setPositiveButton("Editar", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 if(input.getText().length()>0 ) {
-                    try {
-                        if(item.getStatus().equals("ATENDIDO") && Integer.parseInt(input.getText().toString())> item.getQtde()) {
-                            item.setStatus("PARCIAL");
+                    if (Integer.parseInt(input.getText().toString()) > 0) {
+                        try {
+
+                            if (item.getStatus().equals("ATENDIDO") && Integer.parseInt(input.getText().toString()) > item.getQtde()) {
+                                item.setStatus("PARCIAL");
+                                item.setQtde(Integer.parseInt(input.getText().toString()));
+                            }else if (item.getStatus().equals("ATENDIDO") && Integer.parseInt(input.getText().toString()) < item.getQtde()) {
+                                //não muda a quantidade nem o status
+                                Toast.makeText(Comanda_Pedido.this, "Item ja entregue !", Toast.LENGTH_SHORT).show();
+                            }else{
+                                item.setQtde(Integer.parseInt(input.getText().toString()));
+                            }
+                            double total = item.getValor_unitario() * item.getQtde();
+                            df.format(total);
+                            item.setValor_total(total);
+                            item.setData_pedido(new Date());
+                            dao_comanda_item.createOrUpdate(item);
+                            calculatotal();
+                            dao_comanda.createOrUpdate(comanda);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
                         }
-                        item.setQtde(Integer.parseInt(input.getText().toString()));
-                        double total = item.getValor_unitario() * item.getQtde();
-                        df.format(total);
-                        item.setValor_total(total);
-                        item.setData_pedido(new Date());
-                        dao_comanda_item.createOrUpdate(item);
-                        calculatotal();
-                        dao_comanda.createOrUpdate(comanda);
-                    } catch (SQLException e) {
-                        e.printStackTrace();
+                    } else {
+                        Toast.makeText(Comanda_Pedido.this, "Quantidade invalida !", Toast.LENGTH_SHORT).show();
                     }
-                }else{
+                }else {
                     Toast.makeText(Comanda_Pedido.this, "Quantidade invalida !", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -176,7 +204,10 @@ public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnI
             SharedPreferences lt = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
             SharedPreferences.Editor editor = lt.edit();
             String t = lt.getString("idproduto","vazio");
+            editor.putString("idproduto", "vazio");
+            editor.commit();
             if (!t.equals("vazio")) {
+
                 try {
                     produto = new Produto();
                     produto = dao_produto.queryForId(Integer.parseInt(t));
@@ -191,24 +222,28 @@ public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnI
                     mensagem.setPositiveButton("Adicionar", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             if(input.getText().length()>0) {
-                                try {
-                                    comanda_item = new Comanda_Item();
-                                    comanda_item.setComanda(comanda);
-                                    comanda_item.setProduto(produto);
-                                    comanda_item.setQtde(Integer.parseInt(input.getText().toString()));
-                                    comanda_item.setValor_unitario(produto.getValor());
-                                    double total = produto.getValor() * comanda_item.getQtde();
-                                    df.format(total);
-                                    comanda_item.setValor_total(total);
-                                    comanda_item.setStatus("ABERTO");
-                                    comanda_item.setData_pedido(new Date());
-                                    dao_comanda_item.createOrUpdate(comanda_item);
-                                    calculatotal();
-                                    dao_comanda.createOrUpdate(comanda);
-                                } catch (SQLException e) {
-                                    e.printStackTrace();
+                                if (Integer.parseInt(input.getText().toString()) > 0) {
+                                    try {
+                                        comanda_item = new Comanda_Item();
+                                        comanda_item.setComanda(comanda);
+                                        comanda_item.setProduto(produto);
+                                        comanda_item.setQtde(Integer.parseInt(input.getText().toString()));
+                                        comanda_item.setValor_unitario(produto.getValor());
+                                        double total = produto.getValor() * comanda_item.getQtde();
+                                        df.format(total);
+                                        comanda_item.setValor_total(total);
+                                        comanda_item.setStatus("ABERTO");
+                                        comanda_item.setData_pedido(new Date());
+                                        dao_comanda_item.createOrUpdate(comanda_item);
+                                        calculatotal();
+                                        dao_comanda.createOrUpdate(comanda);
+                                    } catch (SQLException e) {
+                                        e.printStackTrace();
+                                    }
+                                } else {
+                                    Toast.makeText(Comanda_Pedido.this, "Quantidade invalida !", Toast.LENGTH_SHORT).show();
                                 }
-                            }else{
+                            }else {
                                 Toast.makeText(Comanda_Pedido.this, "Quantidade invalida !", Toast.LENGTH_SHORT).show();
                             }
                         }

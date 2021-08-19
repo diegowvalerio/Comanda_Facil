@@ -70,18 +70,34 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemCl
     }
 
     private void preenchelista() {
-
+        //ABERTO //PARCIAL //ATENDIDO //FECHADO //FECHADO_PARCIAL
         banco = new DatabaseHelper(this);
         try {
             dao_mesa = new Dao_Mesa(banco.getConnectionSource());
             dao_comanda = new Dao_Comanda(banco.getConnectionSource());
 
             mesas = dao_mesa.queryBuilder().where().eq("status",true).query();
-            Object[] status = {"ABERTO","PARCIAL","ATENDIDO"};
+            Object[] status = {"ABERTO","PARCIAL","ATENDIDO","FECHADO_PARCIAL"};
             for(Mesa m:mesas){
+                int a = 0,p = 0,at = 0,fp =0;
                 comadas.clear();
                 comadas = dao_comanda.queryBuilder().where().eq("mesa",m.getId()).and().in("status",status).query();
                 m.setTotalcomandas(comadas.size());
+                for(Comanda c:comadas){
+                    if(c.getStatus().equals("ABERTO")){
+                       a++;
+                    }else if(c.getStatus().equals("PARCIAL")){
+                        p++;
+                    }else if(c.getStatus().equals("ATENDIDO")){
+                        at++;
+                    }else if(c.getStatus().equals("FECHADO_PARCIAL")){
+                        fp++;
+                    }
+                }
+                m.setTotal_aberto(a);
+                m.setTotal_parcial(p);
+                m.setTotal_atendido(at);
+                m.setTotal_fechado_parcial(fp);
             }
             gridView.setAdapter(new Adp_Comanda(this,mesas));
 
