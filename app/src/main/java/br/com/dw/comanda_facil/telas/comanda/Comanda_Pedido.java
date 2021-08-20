@@ -137,7 +137,8 @@ public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnI
                         mensagem.setTitle(item.getProduto().getDescricao());
                         mensagem.setMessage("Digite a quantidade atendida:");
                         final EditText input = new EditText(activity);
-                        input.setText(item.getQtde().toString());
+                        int v = item.getQtde() - item.getQtde_atendido();
+                        input.setText(""+v);
                         input.setInputType(InputType.TYPE_CLASS_NUMBER);
                         mensagem.setView(input);
                         mensagem.setPositiveButton("Atender", new DialogInterface.OnClickListener() {
@@ -145,7 +146,7 @@ public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnI
                                 if(input.getText().length()>0 ) {
                                     if (Integer.parseInt(input.getText().toString()) < Integer.parseInt(item.getQtde().toString())) {
                                         item.setStatus("PARCIAL");
-                                        item.setQtde_atendido(Integer.parseInt(input.getText().toString()));
+                                        item.setQtde_atendido(item.getQtde_atendido()+Integer.parseInt(input.getText().toString()));
                                         item.setData_entrega(new Date());
                                         try {
                                             dao_comanda_item.createOrUpdate(item);
@@ -156,7 +157,7 @@ public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnI
                                         }
                                     }else if (Integer.parseInt(input.getText().toString()) == Integer.parseInt(item.getQtde().toString())) {
                                         item.setStatus("ATENDIDO");
-                                        item.setQtde_atendido(Integer.parseInt(input.getText().toString()));
+                                        item.setQtde_atendido(item.getQtde_atendido()+Integer.parseInt(input.getText().toString()));
                                         item.setData_entrega(new Date());
                                         try {
                                             dao_comanda_item.createOrUpdate(item);
@@ -278,6 +279,7 @@ public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnI
                                         comanda_item.setValor_total(total);
                                         comanda_item.setStatus("ABERTO");
                                         comanda_item.setData_pedido(new Date());
+                                        comanda_item.setQtde_atendido(0);
                                         dao_comanda_item.createOrUpdate(comanda_item);
                                         calculatotal();
                                         dao_comanda.createOrUpdate(comanda);
