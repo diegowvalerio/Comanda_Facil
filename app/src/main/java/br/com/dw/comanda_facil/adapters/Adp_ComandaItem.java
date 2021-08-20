@@ -63,7 +63,7 @@ public class Adp_ComandaItem extends BaseAdapter {
         if(status.getText().equals("ABERTO")){
             status.setTextColor(Color.RED);
         }else if (status.getText().equals("PARCIAL")){
-            status.setTextColor(Color.YELLOW);
+            status.setTextColor(Color.rgb(255,165,0));
         }else if(status.getText().equals("ATENDIDO")){
             status.setTextColor(Color.GREEN);
         }

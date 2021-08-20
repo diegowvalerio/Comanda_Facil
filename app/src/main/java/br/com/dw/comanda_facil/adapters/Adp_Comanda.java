@@ -40,16 +40,22 @@ public class Adp_Comanda extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = LayoutInflater.from(context).inflate(R.layout.adp_gridview,parent,false);
         TextView descricao =view.findViewById(R.id.adp_gridview_descricao);
+        TextView resumo = view.findViewById(R.id.adp_resumo);
+
         Mesa mesa = mesas.get(position);
         descricao.setText(mesa.getDescricao());
         if(mesa.getTotal_aberto()>0){
             view.setBackgroundResource(R.drawable.grid_row_border_aberto);
+            resumo.setText("Status: Aberto");
         }else if(mesa.getTotal_parcial()>0){
             view.setBackgroundResource(R.drawable.grid_row_border_parcial);
+            resumo.setText("Status: Parcial");
         }else if(mesa.getTotal_atendido()>0){
             view.setBackgroundResource(R.drawable.grid_row_border_atendido);
+            resumo.setText("Status: Atendido");
         }else if(mesa.getTotal_fechado_parcial()>0){
             view.setBackgroundResource(R.drawable.grid_row_border_fechadoparcial);
+            resumo.setText("Status: Fechado Parcial");
         }
         return view;
     }

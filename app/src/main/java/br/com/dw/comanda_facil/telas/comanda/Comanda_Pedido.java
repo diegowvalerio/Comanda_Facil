@@ -2,6 +2,7 @@ package br.com.dw.comanda_facil.telas.comanda;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -62,7 +63,7 @@ public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnI
     int idmesa =0;
     double total,pago,troco,desconto,recebido;
     int v = 0;
-
+    final Activity activity = this;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,24 +122,67 @@ public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnI
 
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        ArrayList<String> itens = new ArrayList<>();
-        itens.add("Atender");
-        itens.add("Excluir");
-        ArrayAdapter adapter = new ArrayAdapter(this, R.layout.item_alerta, itens);
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("O que deseja fazer ?");
-        builder.setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface arg0, int arg1) {
-                        if(arg1 == 0){ //atender
+        final Comanda_Item item = (Comanda_Item) parent.getItemAtPosition(position);
+        if(!item.getStatus().equals("ATENDIDO")) {
+            ArrayList<String> itens = new ArrayList<>();
+            itens.add("Atender");
+            itens.add("Excluir");
+            ArrayAdapter adapter = new ArrayAdapter(this, R.layout.item_alerta, itens);
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("O que deseja fazer ?");
+            builder.setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface arg0, int arg1) {
+                    if (arg1 == 0) { //atender
+                        AlertDialog.Builder mensagem = new AlertDialog.Builder(activity);
+                        mensagem.setTitle(item.getProduto().getDescricao());
+                        mensagem.setMessage("Digite a quantidade atendida:");
+                        final EditText input = new EditText(activity);
+                        input.setText(item.getQtde().toString());
+                        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+                        mensagem.setView(input);
+                        mensagem.setPositiveButton("Atender", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                if(input.getText().length()>0 ) {
+                                    if (Integer.parseInt(input.getText().toString()) < Integer.parseInt(item.getQtde().toString())) {
+                                        item.setStatus("PARCIAL");
+                                        item.setQtde_atendido(Integer.parseInt(input.getText().toString()));
+                                        item.setData_entrega(new Date());
+                                        try {
+                                            dao_comanda_item.createOrUpdate(item);
+                                            calculatotal();
+                                            dao_comanda.createOrUpdate(comanda);
+                                        } catch (SQLException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }else if (Integer.parseInt(input.getText().toString()) == Integer.parseInt(item.getQtde().toString())) {
+                                        item.setStatus("ATENDIDO");
+                                        item.setQtde_atendido(Integer.parseInt(input.getText().toString()));
+                                        item.setData_entrega(new Date());
+                                        try {
+                                            dao_comanda_item.createOrUpdate(item);
+                                            calculatotal();
+                                            dao_comanda.createOrUpdate(comanda);
+                                        } catch (SQLException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }else{
+                                        Toast.makeText(Comanda_Pedido.this, "Quantidade invalida !", Toast.LENGTH_SHORT).show();
+                                    }
+                                }else{
+                                    Toast.makeText(Comanda_Pedido.this, "Quantidade invalida !", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                        mensagem.show();
+                    } else if (arg1 == 1) {//Excluir
 
-                        }else if(arg1 ==1){//Excluir
-
-                        }
-                        alerta.dismiss();
                     }
-        });
-        alerta = builder.create();
-        alerta.show();
+                    alerta.dismiss();
+                }
+            });
+            alerta = builder.create();
+            alerta.show();
+        }
         return true;
     }
 

@@ -25,6 +25,8 @@ public class Comanda_Item {
     @DatabaseField
     private Integer qtde;
     @DatabaseField
+    private Integer qtde_atendido;
+    @DatabaseField
     private double valor_unitario;
     @DatabaseField
     private double valor_total;
@@ -99,5 +101,13 @@ public class Comanda_Item {
 
     public void setValor_total(double valor_total) {
         this.valor_total = valor_total;
+    }
+
+    public Integer getQtde_atendido() {
+        return qtde_atendido;
+    }
+
+    public void setQtde_atendido(Integer qtde_atendido) {
+        this.qtde_atendido = qtde_atendido;
     }
 }
