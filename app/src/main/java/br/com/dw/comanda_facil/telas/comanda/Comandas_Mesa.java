@@ -11,6 +11,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
@@ -38,13 +39,17 @@ public class Comandas_Mesa extends AppCompatActivity implements AdapterView.OnIt
     int idmesa;
     ListView listView;
     Adp_ComandasMesas adp_comandasMesas;
-
+    private AdView mAdView;
     private InterstitialAd mInterstitialAd;
     int n = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comanda);
+
+        mAdView = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
 
         mesaselecionada = findViewById(R.id.mesaselecionada);
         listView = findViewById(R.id.listvew_pedidos);
@@ -57,8 +62,8 @@ public class Comandas_Mesa extends AppCompatActivity implements AdapterView.OnIt
     protected void onStart() {
         super.onStart();
         preenche();
-        if(n == 1) {
-            chamaanuncio();
+        if (mInterstitialAd != null) {
+            mInterstitialAd.show(this);
         }
     }
 
@@ -123,5 +128,6 @@ public class Comandas_Mesa extends AppCompatActivity implements AdapterView.OnIt
                     }
                 });
         n = 1;
+
     }
 }

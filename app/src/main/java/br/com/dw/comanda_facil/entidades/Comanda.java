@@ -34,6 +34,9 @@ public class Comanda {
     @DatabaseField
     private double valor_recebido;
 
+    @DatabaseField(dataType = DataType.DATE_STRING, format = "dd/MM/yyyy hh:mm")
+    private Date data_recebimento;
+
     @ForeignCollectionField(eager = true)
     private Collection<Comanda_Item> items;
 
@@ -131,5 +134,13 @@ public class Comanda {
 
     public void setMesa(Mesa mesa) {
         this.mesa = mesa;
+    }
+
+    public Date getData_recebimento() {
+        return data_recebimento;
+    }
+
+    public void setData_recebimento(Date data_recebimento) {
+        this.data_recebimento = data_recebimento;
     }
 }

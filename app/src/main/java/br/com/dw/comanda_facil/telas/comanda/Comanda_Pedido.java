@@ -120,6 +120,28 @@ public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnI
         pegaproduto();
     }
 
+    public void fecharcomanda(View view){
+        if(comanda_itens.size()>0) {
+            try {
+                calculatotal();
+                dao_comanda.createOrUpdate(comanda);
+                if (comanda.getStatus().equals("ATENDIDO")) {
+                    Intent intent = new Intent(this, Comanda_Pagamento.class);
+                    intent.putExtra("idcomanda",comanda.getId());
+                    startActivity(intent);
+                    finish();
+                } else {
+                    Toast.makeText(activity, "Existe produto não atendido ! Verifique ", Toast.LENGTH_LONG).show();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                Toast.makeText(activity, "Erro", Toast.LENGTH_SHORT).show();
+            }
+        }else{
+            Toast.makeText(activity, "Não há produto inserido !", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         final Comanda_Item item = (Comanda_Item) parent.getItemAtPosition(position);
@@ -144,9 +166,10 @@ public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnI
                         mensagem.setPositiveButton("Atender", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 if(input.getText().length()>0 ) {
-                                    if (Integer.parseInt(input.getText().toString()) < Integer.parseInt(item.getQtde().toString())) {
-                                        item.setStatus("PARCIAL");
-                                        item.setQtde_atendido(item.getQtde_atendido()+Integer.parseInt(input.getText().toString()));
+                                    int q = Integer.parseInt(input.getText().toString());
+                                    if (q+item.getQtde_atendido() == item.getQtde()){
+                                        item.setStatus("ATENDIDO");
+                                        item.setQtde_atendido(item.getQtde_atendido()+q);
                                         item.setData_entrega(new Date());
                                         try {
                                             dao_comanda_item.createOrUpdate(item);
@@ -155,9 +178,9 @@ public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnI
                                         } catch (SQLException e) {
                                             e.printStackTrace();
                                         }
-                                    }else if (Integer.parseInt(input.getText().toString()) == Integer.parseInt(item.getQtde().toString())) {
-                                        item.setStatus("ATENDIDO");
-                                        item.setQtde_atendido(item.getQtde_atendido()+Integer.parseInt(input.getText().toString()));
+                                    }else if (q+item.getQtde_atendido() < item.getQtde()){
+                                        item.setStatus("PARCIAL");
+                                        item.setQtde_atendido(item.getQtde_atendido()+q);
                                         item.setData_entrega(new Date());
                                         try {
                                             dao_comanda_item.createOrUpdate(item);
@@ -169,14 +192,41 @@ public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnI
                                     }else{
                                         Toast.makeText(Comanda_Pedido.this, "Quantidade invalida !", Toast.LENGTH_SHORT).show();
                                     }
-                                }else{
-                                    Toast.makeText(Comanda_Pedido.this, "Quantidade invalida !", Toast.LENGTH_SHORT).show();
+                                    }else{
+                                        Toast.makeText(Comanda_Pedido.this, "Quantidade invalida !", Toast.LENGTH_SHORT).show();
+                                    }
                                 }
+                        });
+                        mensagem.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
                             }
                         });
                         mensagem.show();
                     } else if (arg1 == 1) {//Excluir
+                        AlertDialog.Builder mensagem = new AlertDialog.Builder(activity);
+                        mensagem.setTitle(item.getProduto().getDescricao());
+                        mensagem.setMessage("Confirma Exclusão ?");
+                        mensagem.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                try {
+                                    dao_comanda_item.delete(item);
+                                    calculatotal();
+                                    dao_comanda.createOrUpdate(comanda);
+                                    Toast.makeText(Comanda_Pedido.this, "Excluido com Sucesso !", Toast.LENGTH_SHORT).show();
+                                } catch (SQLException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                        mensagem.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
 
+                            }
+                        });
+                        mensagem.show();
                     }
                     alerta.dismiss();
                 }
@@ -405,7 +455,7 @@ public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnI
                 }
                 adp_comandaItem = new Adp_ComandaItem(this, comanda_itens);
                 listView.setAdapter(adp_comandaItem);
-                if(totalparcial > 0){
+                if(totalparcial > 0 || (totalaberto != totalitens)){
                     comanda.setStatus("PARCIAL");
                 }
                 if(totalatendido == totalitens){

@@ -9,6 +9,9 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -34,11 +37,16 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemCl
     Dao_Mesa dao_mesa;
     Dao_Comanda dao_comanda;
     List<Comanda> comadas = new ArrayList<>();
+    private AdView mAdView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_principal);
+
+        mAdView = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
 
         gridView = findViewById(R.id.gridview);
         gridView.setOnItemClickListener(this);

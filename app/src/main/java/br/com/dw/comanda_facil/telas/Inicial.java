@@ -57,19 +57,7 @@ public class Inicial extends AppCompatActivity {
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
 
-        chamaanuncio();
-
-    }
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if(n == 1) {
-            chamaanuncio();
-        }
-    }
-
-    private void chamaanuncio() {
-        AdRequest adRequest = new AdRequest.Builder().build();
+        adRequest = new AdRequest.Builder().build();
         InterstitialAd.load(this,"ca-app-pub-3925364440483118/6814590401", adRequest,
                 new InterstitialAdLoadCallback() {
                     @Override
@@ -85,7 +73,12 @@ public class Inicial extends AppCompatActivity {
                         mInterstitialAd = null;
                     }
                 });
-        n = 1;
+
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+
     }
 
     public void tela_principal(View view) throws IOException, InterruptedException {
