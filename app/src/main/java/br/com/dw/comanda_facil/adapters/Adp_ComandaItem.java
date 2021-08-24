@@ -54,18 +54,23 @@ public class Adp_ComandaItem extends BaseAdapter {
         TextView valor = view.findViewById(R.id.adp_itemtotal);
         TextView datapedido = view.findViewById(R.id.adp_itemdatapedido);
         TextView dataentrega = view.findViewById(R.id.adp_itemdataentrega);
+        TextView qtdeentregue = view.findViewById(R.id.adp_itemqtdeentregue);
         ImageView imagem = view.findViewById(R.id.adp_produto_imagem);
 
         Comanda_Item comanda_item = comanda_items.get(position);
 
         produto.setText(comanda_item.getProduto().getDescricao());
+        qtdeentregue.setText("Qtde: "+comanda_item.getQtde_atendido().toString());
         status.setText(comanda_item.getStatus());
         if(status.getText().equals("ABERTO")){
             status.setTextColor(Color.RED);
+            qtdeentregue.setTextColor(Color.RED);
         }else if (status.getText().equals("PARCIAL")){
             status.setTextColor(Color.rgb(255,165,0));
+            qtdeentregue.setTextColor(Color.rgb(255,165,0));
         }else if(status.getText().equals("ATENDIDO")){
             status.setTextColor(Color.GREEN);
+            qtdeentregue.setTextColor(Color.GREEN);
         }
         qtdeunitario.setText(comanda_item.getQtde()+" x R$ "+comanda_item.getValor_unitario());
         valor.setText("R$ "+df.format(comanda_item.getValor_total()));
@@ -75,6 +80,7 @@ public class Adp_ComandaItem extends BaseAdapter {
         }else{
             dataentrega.setText("Entrega:");
         }
+
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = 2;
         options.inJustDecodeBounds = false;
