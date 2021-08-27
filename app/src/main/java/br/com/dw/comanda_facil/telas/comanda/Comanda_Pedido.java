@@ -1,6 +1,8 @@
 package br.com.dw.comanda_facil.telas.comanda;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -8,8 +10,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.view.View;
@@ -20,6 +28,29 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfContentByte;
+import com.itextpdf.text.pdf.PdfPageEvent;
+import com.itextpdf.text.pdf.PdfPageEventHelper;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.draw.LineSeparator;
+import com.itextpdf.text.pdf.parser.Line;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -29,6 +60,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Timer;
 
 import br.com.dw.comanda_facil.R;
 import br.com.dw.comanda_facil.adapters.Adp_ComandaItem;
@@ -64,6 +96,7 @@ public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnI
     double total,pago,troco,desconto,recebido;
     int v = 0;
     final Activity activity = this;
+    File pdffile = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,6 +139,173 @@ public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnI
         }
     }
 
+    public static Bitmap bitmaps(Drawable drawable){
+        try {
+            Bitmap bitmap;
+
+            bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+
+            Canvas canvas = new Canvas(bitmap);
+            drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+            drawable.draw(canvas);
+            return bitmap;
+        } catch (OutOfMemoryError e) {
+            // Handle the error
+            return null;
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    public void gerarpdf(View view){
+            try {
+                String filename = "" + comanda.getMesa().getDescricao() + "_comanda_" + comanda.getCliente() + ".pdf";
+                File path = new File(Environment.getExternalStorageDirectory(), "Comanda_Facil/pfd");
+                pdffile = new File(path, filename);
+                path.mkdirs();
+                //File file = createFile();
+                Document doc = new Document();
+                PdfWriter w = PdfWriter.getInstance(doc, new FileOutputStream(pdffile));
+                w.setPageEvent(new PdfPageEvent() {
+                    @Override
+                    public void onOpenDocument(PdfWriter writer, Document document) {
+
+                    }
+
+                    @Override
+                    public void onStartPage(PdfWriter writer, Document document) {
+
+                    }
+
+                    @Override
+                    public void onEndPage(PdfWriter writer, Document document) {
+                        PdfContentByte cb = writer.getDirectContent();
+                        cb.saveState();
+                        try {
+                            String txt = "Página "+writer.getPageNumber();
+                            BaseFont bf = null;
+                            try {
+                                bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.WINANSI, BaseFont.NOT_EMBEDDED);
+                            } catch (DocumentException e) {
+                                e.printStackTrace();
+                            }
+
+                            float txtBase = document.top();
+                            float txtSize = bf.getWidthPoint(txt, 8);
+                            float adj = bf.getWidthPoint("0", 80);
+
+                            cb.beginText();
+                            cb.setFontAndSize(bf, 8);
+
+                            cb.setTextMatrix(document.right() - txtSize - adj, txtBase);
+                            cb.showText(txt);
+
+                            cb.endText();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        cb.restoreState();
+
+                    }
+
+                    @Override
+                    public void onCloseDocument(PdfWriter writer, Document document) {
+
+                    }
+
+                    @Override
+                    public void onParagraph(PdfWriter writer, Document document, float paragraphPosition) {
+
+                    }
+
+                    @Override
+                    public void onParagraphEnd(PdfWriter writer, Document document, float paragraphPosition) {
+
+                    }
+
+                    @Override
+                    public void onChapter(PdfWriter writer, Document document, float paragraphPosition, Paragraph title) {
+
+                    }
+
+                    @Override
+                    public void onChapterEnd(PdfWriter writer, Document document, float paragraphPosition) {
+
+                    }
+
+                    @Override
+                    public void onSection(PdfWriter writer, Document document, float paragraphPosition, int depth, Paragraph title) {
+
+                    }
+
+                    @Override
+                    public void onSectionEnd(PdfWriter writer, Document document, float paragraphPosition) {
+
+                    }
+
+                    @Override
+                    public void onGenericTag(PdfWriter writer, Document document, Rectangle rect, String text) {
+
+                    }
+                });
+                doc.open();//abrir o documento
+
+
+                //Paragraph texto_estilo = new Paragraph("Ensinar quem sabe menos e aprender com quem sabe mais".toUpperCase(), FontFactory.getFont(FontFactory.HELVETICA, 20, Font.BOLD, BaseColor.RED));
+
+                //criar
+                Drawable drawable = getResources().getDrawable(R.mipmap.comanda_facil);
+                Bitmap bitmap1 = bitmaps(drawable);
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bitmap1.compress(Bitmap.CompressFormat.JPEG, 50, stream);
+                byte[] byteArray = stream.toByteArray();
+
+                Image img = Image.getInstance(byteArray);
+                img.scaleAbsolute(50, 50);
+                img.setAlignment(Image.TEXTWRAP);
+
+                //criar parágrafos
+                Paragraph cabecalho = new Paragraph();
+                cabecalho.add(new Phrase("Comanda Fácil",FontFactory.getFont(FontFactory.TIMES_ROMAN,20,Font.BOLD)));
+                cabecalho.add(Chunk.NEWLINE);
+
+                cabecalho.add("Um jeito fácil de controlar");
+                cabecalho.setAlignment(Element.ALIGN_CENTER);
+                doc.add(img);
+                doc.add(new LineSeparator());
+                doc.add(cabecalho);
+                doc.add(Chunk.NEWLINE);
+
+                Paragraph conteudo = new Paragraph();
+                doc.add(conteudo);
+
+
+                //criar nova página
+                //doc.newPage();
+                //adicionar parágrafo na nova página
+               // doc.add(texto_estilo);
+
+                //adicionar informações de autoria do documento
+                doc.addAuthor("Dw Equipamentos & Soluções");
+                //depois de tudo fechamos o documento
+                doc.close();
+
+                //exibir pdf
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                Uri uri = FileProvider.getUriForFile(this,"br.com.dw.comanda_facil.fileprovider",pdffile);
+                intent.setType("application/pdf");
+                intent.setData(uri);
+                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                startActivity(intent);
+
+                //https://issuu.com/charleseduardo/docs/02_-_relatorios_com_itext
+                //https://www.devmedia.com.br/itext-blocos-de-construcao-anchor-chapter-section-image/30041
+                //https://www.devmedia.com.br/itext-blocos-de-construcao-paragraph-list-e-listitem/29969
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+    }
+
     public void tela_produtos(View view) throws ParseException {
         salvarparaadicionaritens();
         Intent intent = new Intent(this, Comanda_Produto.class);
@@ -118,6 +318,9 @@ public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnI
         super.onStart();
         preenche_itens();
         pegaproduto();
+        if(pdffile != null){
+            pdffile.delete();
+        }
     }
 
     public void fecharcomanda(View view){

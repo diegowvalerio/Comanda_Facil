@@ -39,7 +39,9 @@ import java.util.List;
 import br.com.dw.comanda_facil.R;
 import br.com.dw.comanda_facil.adapters.Adp_produtos;
 import br.com.dw.comanda_facil.banco.DatabaseHelper;
+import br.com.dw.comanda_facil.dao.Dao_Comanda_Item;
 import br.com.dw.comanda_facil.dao.Dao_Produto;
+import br.com.dw.comanda_facil.entidades.Comanda_Item;
 import br.com.dw.comanda_facil.entidades.Produto;
 import br.com.dw.comanda_facil.util.Util;
 
@@ -47,6 +49,8 @@ public class Produtos extends AppCompatActivity  implements  AdapterView.OnItemC
     private ListView listView;
     private DatabaseHelper banco;
     private Dao_Produto dao_produto;
+    private Dao_Comanda_Item dao_comanda_item;
+    private List<Comanda_Item> comanda_items = new ArrayList<>();
     private Produto produto = new Produto();
     private Adp_produtos adp_produtos;
     private List<Produto> produtos = new ArrayList<>();
@@ -69,6 +73,13 @@ public class Produtos extends AppCompatActivity  implements  AdapterView.OnItemC
             public void onInitializationComplete(InitializationStatus initializationStatus) {
             }
         });
+
+        banco = new DatabaseHelper(this);
+        try {
+            dao_comanda_item = new Dao_Comanda_Item(banco.getConnectionSource());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
         mAdView = findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
@@ -114,7 +125,7 @@ public class Produtos extends AppCompatActivity  implements  AdapterView.OnItemC
 
     public void preenchelista(){
         if( v == 0) {
-            banco = new DatabaseHelper(this);
+
             try {
                 dao_produto = new Dao_Produto(banco.getConnectionSource());
                 produtos = dao_produto.queryForAll();
@@ -177,30 +188,36 @@ public class Produtos extends AppCompatActivity  implements  AdapterView.OnItemC
     }
 
     public void tela_produto(View view) throws IOException, InterruptedException {
-        if(Util.isOnline()) {
-        Intent intent = new Intent(this, TelaProduto.class);
-        startActivity(intent);
-        }else{
-            Toast.makeText(this, "Nescessário acesso a internet ! ", Toast.LENGTH_SHORT).show();
+        if(produtos.size() == 50 || produtos.size() > 50){
+            Toast.makeText(activity, "Você atingiu o limite de 50 produtos cadastrados ! ", Toast.LENGTH_SHORT).show();
+        }else {
+            if (Util.isOnline()) {
+                Intent intent = new Intent(this, TelaProduto.class);
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "Nescessário acesso a internet ! ", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        try {
-            if(Util.isOnline()) {
-                Produto produto = (Produto) parent.getItemAtPosition(position);
-                Intent intent = new Intent(this, TelaProduto.class);
-                intent.putExtra("id", produto.getId());
-                startActivity(intent);
-            }else{
-                Toast.makeText(this, "Nescessário acesso a internet ! ", Toast.LENGTH_SHORT).show();
+
+            try {
+                if (Util.isOnline()) {
+                    Produto produto = (Produto) parent.getItemAtPosition(position);
+                    Intent intent = new Intent(this, TelaProduto.class);
+                    intent.putExtra("id", produto.getId());
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(this, "Nescessário acesso a internet ! ", Toast.LENGTH_SHORT).show();
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
     }
 
     @Override
@@ -218,8 +235,14 @@ public class Produtos extends AppCompatActivity  implements  AdapterView.OnItemC
             public void onClick(DialogInterface arg0, int arg1) {
                 if(arg1 == 0){
                     try {
-                        dao_produto.delete(p);
-                        Toast.makeText(Produtos.this, "Produto Excluido com Sucesso !", Toast.LENGTH_SHORT).show();
+                        comanda_items.clear();
+                        comanda_items = dao_comanda_item.queryBuilder().where().eq("produto",p.getId()).query();
+                        if(comanda_items.size() >0){
+                            Toast.makeText(activity, "Produto já utilizado em comandas, não é possível excluir !", Toast.LENGTH_SHORT).show();
+                        }else {
+                            dao_produto.delete(p);
+                            Toast.makeText(Produtos.this, "Produto Excluído com Sucesso !", Toast.LENGTH_SHORT).show();
+                        }
                     } catch (SQLException e) {
                         e.printStackTrace();
                         Toast.makeText(Produtos.this, "Erro ao Excluir Produto!", Toast.LENGTH_SHORT).show();

@@ -28,6 +28,7 @@ import br.com.dw.comanda_facil.telas.comanda.Comandas_Mesa;
 import br.com.dw.comanda_facil.telas.mesa.Mesas;
 import br.com.dw.comanda_facil.telas.produto.Produtos;
 import br.com.dw.comanda_facil.telas.produto.TelaProduto;
+import br.com.dw.comanda_facil.telas.relatorio.Relatorios;
 import br.com.dw.comanda_facil.util.Util;
 
 public class Principal extends AppCompatActivity implements AdapterView.OnItemClickListener {
@@ -37,6 +38,7 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemCl
     Dao_Mesa dao_mesa;
     Dao_Comanda dao_comanda;
     List<Comanda> comadas = new ArrayList<>();
+
     private AdView mAdView;
 
     @Override
@@ -55,6 +57,15 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemCl
     public void tela_produtos(View view) throws IOException, InterruptedException {
         if(Util.isOnline()) {
             Intent intent = new Intent(this, Produtos.class);
+            startActivity(intent);
+        }else{
+            Toast.makeText(this, "Nescessário acesso a internet ! ", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void tela_relatorios(View view) throws IOException, InterruptedException {
+        if(Util.isOnline()) {
+            Intent intent = new Intent(this, Relatorios.class);
             startActivity(intent);
         }else{
             Toast.makeText(this, "Nescessário acesso a internet ! ", Toast.LENGTH_SHORT).show();
@@ -109,6 +120,7 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemCl
             }
             gridView.setAdapter(new Adp_Comanda(this,mesas));
 
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -116,10 +128,11 @@ public class Principal extends AppCompatActivity implements AdapterView.OnItemCl
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Mesa mesa = (Mesa) parent.getItemAtPosition(position);
-        Intent intent = new Intent(this, Comandas_Mesa.class);
-        intent.putExtra("id",mesa.getId());
-        startActivity(intent);
-        Toast.makeText(this, "Selecionado: "+mesa.getDescricao(), Toast.LENGTH_SHORT).show();
+            Mesa mesa = (Mesa) parent.getItemAtPosition(position);
+            Intent intent = new Intent(this, Comandas_Mesa.class);
+            intent.putExtra("id", mesa.getId());
+            startActivity(intent);
+            //Toast.makeText(this, "Selecionado: "+mesa.getDescricao(), Toast.LENGTH_SHORT).show();
+
     }
 }

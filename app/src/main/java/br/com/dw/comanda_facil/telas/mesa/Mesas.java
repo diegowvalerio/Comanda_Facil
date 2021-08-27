@@ -1,18 +1,23 @@
 package br.com.dw.comanda_facil.telas.mesa;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -20,6 +25,7 @@ import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,17 +33,23 @@ import java.util.List;
 import br.com.dw.comanda_facil.R;
 import br.com.dw.comanda_facil.adapters.Adp_mesas;
 import br.com.dw.comanda_facil.banco.DatabaseHelper;
+import br.com.dw.comanda_facil.dao.Dao_Comanda;
+import br.com.dw.comanda_facil.dao.Dao_Comanda_Item;
 import br.com.dw.comanda_facil.dao.Dao_Mesa;
+import br.com.dw.comanda_facil.entidades.Comanda;
 import br.com.dw.comanda_facil.entidades.Mesa;
+import br.com.dw.comanda_facil.util.Util;
 
 
-public class Mesas extends AppCompatActivity implements AdapterView.OnItemClickListener {
+public class Mesas extends AppCompatActivity implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
     private ListView listView;
     private DatabaseHelper banco;
     private Dao_Mesa dao_mesa;
     private Adp_mesas adp_mesas;
     private List<Mesa> mesas = new ArrayList<>();
     private List<Mesa> mesasfiltradas = new ArrayList<>();
+    private Dao_Comanda dao_comanda;
+    private List<Comanda> comandas = new ArrayList<>();
     private EditText filtro;
     private AlertDialog alerta;
     CheckBox filtro_ativo;
@@ -57,6 +69,13 @@ public class Mesas extends AppCompatActivity implements AdapterView.OnItemClickL
             }
         });
 
+        banco = new DatabaseHelper(this);
+        try {
+            dao_comanda = new Dao_Comanda(banco.getConnectionSource());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
         mAdView = findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
@@ -74,11 +93,20 @@ public class Mesas extends AppCompatActivity implements AdapterView.OnItemClickL
         });
         listView = findViewById(R.id.listview_mesas);
         listView.setOnItemClickListener(this);
+        listView.setOnItemLongClickListener(this);
     }
 
-    public void tela_mesa(View view){
-        Intent intent = new Intent(this, TelaMesa.class);
-        startActivity(intent);
+    public void tela_mesa(View view) throws IOException, InterruptedException {
+        if(mesas.size() == 10 || mesas.size() > 10){
+            Toast.makeText(activity, "Você atingiu o limite de 10 mesas cadastradas ! ", Toast.LENGTH_SHORT).show();
+        }else {
+            if (Util.isOnline()) {
+                Intent intent = new Intent(this, TelaMesa.class);
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "Nescessário acesso a internet ! ", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     @Override
@@ -98,7 +126,6 @@ public class Mesas extends AppCompatActivity implements AdapterView.OnItemClickL
 
     private void preenchelista() {
         if( v == 0) {
-            banco = new DatabaseHelper(this);
             try {
                 dao_mesa = new Dao_Mesa(banco.getConnectionSource());
                 mesas = dao_mesa.queryForAll();
@@ -156,5 +183,45 @@ public class Mesas extends AppCompatActivity implements AdapterView.OnItemClickL
                 mesasfiltradas.add(data);
             }
         }
+    }
+
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        final Mesa p = (Mesa) parent.getItemAtPosition(position);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        ArrayList<String> itens = new ArrayList<>();
+        itens.add("Sim");
+        itens.add("Não");
+        ArrayAdapter adapter = new ArrayAdapter(this, R.layout.item_alerta, itens);
+        builder.setTitle("Confirma Exclusão da Mesa ?");
+        builder.setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+            @Override
+            public void onClick(DialogInterface arg0, int arg1) {
+                if(arg1 == 0){
+                    try {
+                        comandas.clear();
+                        comandas = dao_comanda.queryBuilder().where().eq("mesa",p.getId()).query();
+                        if(comandas.size() >0){
+                            Toast.makeText(activity, "Mesa já utilizada em comandas, não é possível excluir !", Toast.LENGTH_SHORT).show();
+                        }else {
+                            dao_mesa.delete(p);
+                            Toast.makeText(Mesas.this, "Mesa Excluído com Sucesso !", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                        Toast.makeText(Mesas.this, "Erro ao Excluir Mesa !", Toast.LENGTH_SHORT).show();
+                    }
+                    alerta.dismiss();
+                    preenchelista();
+                }else if(arg1 ==1){
+                    alerta.dismiss();
+                }
+            }
+        });
+        alerta = builder.create();
+        alerta.show();
+        return true;
     }
 }

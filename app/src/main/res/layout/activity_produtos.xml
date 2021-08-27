@@ -23,9 +23,8 @@
         android:id="@+id/filtro_ativo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         app:layout_constraintStart_toEndOf="@+id/p_filtro"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/textView13" />
 
     <ImageButton
         android:id="@+id/btn_leitura2"
@@ -38,16 +37,19 @@
 
     <Button
         android:id="@+id/btn_novoproduto"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginBottom="2dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="8dp"
         android:background="@drawable/rounded_corner"
         android:onClick="tela_produto"
         android:text="@string/btn_novoproduto"
         android:textAllCaps="false"
         app:layout_constraintBottom_toTopOf="@+id/adView"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
@@ -72,5 +74,15 @@
         app:layout_constraintTop_toBottomOf="@+id/p_filtro" >
 
     </ListView>
+
+    <TextView
+        android:id="@+id/textView13"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ativo ?"
+        android:textSize="10sp"
+        app:layout_constraintEnd_toEndOf="@+id/filtro_ativo"
+        app:layout_constraintStart_toEndOf="@+id/p_filtro"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

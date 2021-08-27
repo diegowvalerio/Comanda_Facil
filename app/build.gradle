@@ -39,6 +39,8 @@ dependencies {
     implementation group: 'com.j256.ormlite', name: 'ormlite-android', version: '4.48'
     implementation 'com.google.zxing:core:3.2.1'
     implementation 'com.journeyapps:zxing-android-embedded:3.2.0@aar'
+    // https://mvnrepository.com/artifact/com.itextpdf/itextpdf
+    implementation group: 'com.itextpdf', name: 'itextpdf', version: '5.5.13.2'
 
 
 }

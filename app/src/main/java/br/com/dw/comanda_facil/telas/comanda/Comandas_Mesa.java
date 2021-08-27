@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -36,6 +37,7 @@ public class Comandas_Mesa extends AppCompatActivity implements AdapterView.OnIt
     Mesa mesa;
     TextView mesaselecionada;
     List<Comanda> comandas = new ArrayList<>();
+    List<Comanda> totalgeralcomadas = new ArrayList<>();
     int idmesa;
     ListView listView;
     Adp_ComandasMesas adp_comandasMesas;
@@ -68,10 +70,14 @@ public class Comandas_Mesa extends AppCompatActivity implements AdapterView.OnIt
     }
 
     public void comanda_pedido(View view){
-        chamaanuncio();
-        Intent intent = new Intent(this, Comanda_Pedido.class);
-        intent.putExtra("id",idmesa);
-        startActivity(intent);
+        if (totalgeralcomadas.size() == 100 || totalgeralcomadas.size() > 100) {
+            Toast.makeText(this, "Você atingiu o limite de 100 comandas registradas ! ", Toast.LENGTH_SHORT).show();
+        } else {
+            chamaanuncio();
+            Intent intent = new Intent(this, Comanda_Pedido.class);
+            intent.putExtra("id", idmesa);
+            startActivity(intent);
+        }
     }
 
     private void preenche() {
@@ -96,6 +102,14 @@ public class Comandas_Mesa extends AppCompatActivity implements AdapterView.OnIt
                 e.printStackTrace();
             }
 
+        }
+
+        try {
+            //pega total de comandas do sistema
+            totalgeralcomadas.clear();
+            totalgeralcomadas = dao_comanda.queryForAll();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
