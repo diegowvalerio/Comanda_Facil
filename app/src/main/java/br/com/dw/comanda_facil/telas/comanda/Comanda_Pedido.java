@@ -600,6 +600,9 @@ public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnI
                 comanda.setMesa(dao_mesa.queryForId(idmesa));
                 d = sdf.parse(String.valueOf(dataabertura.getText()));
                 comanda.setData_abertura(d);
+                if(comanda.getStatus()==null){
+                    comanda.setStatus("ABERTO");
+                }
                 calculatotal();
                 dao_comanda.createOrUpdate(comanda);
                 finish();
@@ -655,6 +658,9 @@ public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnI
                     //df.format(total);
                     vltotal.setText(df.format(total));
                     comanda.setValor_total(total);
+                }else{
+                    comanda.setValor_total(0);
+                    vltotal.setText(df.format(0));
                 }
                 adp_comandaItem = new Adp_ComandaItem(this, comanda_itens);
                 listView.setAdapter(adp_comandaItem);

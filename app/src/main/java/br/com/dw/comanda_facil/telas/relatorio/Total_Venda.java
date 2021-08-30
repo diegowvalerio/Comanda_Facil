@@ -19,9 +19,11 @@ import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -104,6 +106,12 @@ public class Total_Venda extends AppCompatActivity {
         criapizza();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        entrada();
+    }
+
     //como criar o grafico
     //https://www.youtube.com/watch?v=vhKtbECeazQ&ab_channel=ChiragKachhadiya
     public void criapizza(){
@@ -159,17 +167,48 @@ public class Total_Venda extends AppCompatActivity {
         totalvendapizza.setData(data);
         totalvendapizza.getDescription().setEnabled(false);
         totalvendapizza.setCenterText("Total Venda x Status");
-        totalvendapizza.animate();
+        totalvendapizza.animateY(1000);
         totalvendapizza.invalidate();
     }
 
-    public void pesquisar(View view){
+    public void entrada(){
+        SimpleDateFormat dt = new SimpleDateFormat("dd/MM/yyyy HH:mm",new Locale("pt","BR"));
+
+        Calendar c1 = Calendar.getInstance();
+        c1.set(calendario.get(Calendar.YEAR), calendario.get(Calendar.MONTH), calendario.get(Calendar.DATE)-1,23,59,59);
+        Calendar c2 = Calendar.getInstance();
+        c2.set(calendario2.get(Calendar.YEAR), calendario2.get(Calendar.MONTH), calendario2.get(Calendar.DATE),23,59,59);
+
         try {
+            Date d1 = dt.parse(dt.format(c1.getTime()));
+            Date d2 = dt.parse(dt.format(c2.getTime()));
+
             dao_comanda = new Dao_Comanda(banco.getConnectionSource());
-            comadas = dao_comanda.queryBuilder().where().between("data_abertura",calendario.getTime(),calendario2.getTime()).query();
+            comadas = dao_comanda.queryBuilder().where().between("data_abertura",d1,d2).query();
             criapizza();
-            Toast.makeText(this, ""+calendario.getTime(), Toast.LENGTH_SHORT).show();
-        } catch (SQLException e) {
+
+        } catch (SQLException | ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void pesquisar(View view){
+        SimpleDateFormat dt = new SimpleDateFormat("dd/MM/yyyy HH:mm",new Locale("pt","BR"));
+
+        Calendar c1 = Calendar.getInstance();
+        c1.set(calendario.get(Calendar.YEAR), calendario.get(Calendar.MONTH), calendario.get(Calendar.DATE)-1,23,59,59);
+        Calendar c2 = Calendar.getInstance();
+        c2.set(calendario2.get(Calendar.YEAR), calendario2.get(Calendar.MONTH), calendario2.get(Calendar.DATE),23,59,59);
+
+        try {
+            Date d1 = dt.parse(dt.format(c1.getTime()));
+            Date d2 = dt.parse(dt.format(c2.getTime()));
+
+            dao_comanda = new Dao_Comanda(banco.getConnectionSource());
+            comadas = dao_comanda.queryBuilder().where().between("data_abertura",d1,d2).query();
+            criapizza();
+
+        } catch (SQLException | ParseException e) {
             e.printStackTrace();
         }
     }

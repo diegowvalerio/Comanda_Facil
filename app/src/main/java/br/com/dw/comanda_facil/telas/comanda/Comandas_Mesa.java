@@ -1,12 +1,17 @@
 package br.com.dw.comanda_facil.telas.comanda;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,9 +33,8 @@ import br.com.dw.comanda_facil.dao.Dao_Comanda;
 import br.com.dw.comanda_facil.dao.Dao_Mesa;
 import br.com.dw.comanda_facil.entidades.Comanda;
 import br.com.dw.comanda_facil.entidades.Mesa;
-import br.com.dw.comanda_facil.telas.mesa.TelaMesa;
 
-public class Comandas_Mesa extends AppCompatActivity implements AdapterView.OnItemClickListener {
+public class Comandas_Mesa extends AppCompatActivity implements AdapterView.OnItemClickListener,AdapterView.OnItemLongClickListener {
     DatabaseHelper banco;
     Dao_Comanda dao_comanda;
     Dao_Mesa dao_mesa;
@@ -44,6 +48,7 @@ public class Comandas_Mesa extends AppCompatActivity implements AdapterView.OnIt
     private AdView mAdView;
     private InterstitialAd mInterstitialAd;
     int n = 0;
+    private AlertDialog alerta;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +61,7 @@ public class Comandas_Mesa extends AppCompatActivity implements AdapterView.OnIt
         mesaselecionada = findViewById(R.id.mesaselecionada);
         listView = findViewById(R.id.listvew_pedidos);
         listView.setOnItemClickListener(this);
+        listView.setOnItemLongClickListener(this);
 
         chamaanuncio();
     }
@@ -143,5 +149,42 @@ public class Comandas_Mesa extends AppCompatActivity implements AdapterView.OnIt
                 });
         n = 1;
 
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        final Comanda comanda = (Comanda) parent.getItemAtPosition(position);
+        if(comanda.getValor_total() > 0){
+            Toast.makeText(this, "Para excluir a Comanda, remova todos os itens ! ", Toast.LENGTH_SHORT).show();
+        }else{
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            ArrayList<String> itens = new ArrayList<>();
+            itens.add("Sim");
+            itens.add("Não");
+            ArrayAdapter adapter = new ArrayAdapter(this, R.layout.item_alerta, itens);
+            builder.setTitle("Confirma Exclusão da Comanda ?");
+            builder.setSingleChoiceItems(adapter, 0, new DialogInterface.OnClickListener() {
+                @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+                @Override
+                public void onClick(DialogInterface arg0, int arg1) {
+                    if(arg1 == 0){
+                        try {
+                            dao_comanda.delete(comanda);
+                            Toast.makeText(Comandas_Mesa.this, "Comanda Excluído com Sucesso !", Toast.LENGTH_SHORT).show();
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                            Toast.makeText(Comandas_Mesa.this, "Erro ao Excluir Comanda !", Toast.LENGTH_SHORT).show();
+                        }
+                        alerta.dismiss();
+                        preenche();
+                    }else if(arg1 ==1){
+                        alerta.dismiss();
+                    }
+                }
+            });
+            alerta = builder.create();
+            alerta.show();
+        }
+        return true;
     }
 }
