@@ -101,7 +101,7 @@ public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnI
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comanda__pedido);
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
         cliente = findViewById(R.id.c_cliente);
         qtdepessoas = findViewById(R.id.c_qtdepessoas);
@@ -568,7 +568,7 @@ public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnI
         DecimalFormat df = new DecimalFormat("R$ #,###.00");
 
         if(v == 0) {
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm");
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
             Bundle bundle = getIntent().getExtras();
             if (bundle != null && bundle.containsKey("idcomanda")) {
                 try {
@@ -592,7 +592,7 @@ public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnI
     }
 
     public void salvarcomanda(View view) throws ParseException {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         if(cliente.getText().length() > 0 && qtdepessoas.getText().length()>0){
             try {
                 comanda.setCliente(cliente.getText().toString().toUpperCase());
@@ -600,6 +600,7 @@ public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnI
                 comanda.setMesa(dao_mesa.queryForId(idmesa));
                 d = sdf.parse(String.valueOf(dataabertura.getText()));
                 comanda.setData_abertura(d);
+                comanda.setData_abertura_long(d);
                 if(comanda.getStatus()==null){
                     comanda.setStatus("ABERTO");
                 }
@@ -615,7 +616,7 @@ public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnI
     }
 
     public void salvarparaadicionaritens(){
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         if(cliente.getText().length() > 0 && qtdepessoas.getText().length()>0){
             try {
                 comanda.setCliente(cliente.getText().toString().toUpperCase());
@@ -623,6 +624,7 @@ public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnI
                 comanda.setMesa(dao_mesa.queryForId(idmesa));
                 d = sdf.parse(String.valueOf(dataabertura.getText()));
                 comanda.setData_abertura(d);
+                comanda.setData_abertura_long(d);
                 calculatotal();
                 dao_comanda.createOrUpdate(comanda);
             } catch (SQLException | ParseException e) {

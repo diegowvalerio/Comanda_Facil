@@ -17,7 +17,7 @@ import br.com.dw.comanda_facil.entidades.Produto;
 
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String databaseName = "BD.db";
-    private static final Integer databaseVersion = 6;
+    private static final Integer databaseVersion = 7;
 
     public DatabaseHelper(Context context) {
             super(context, databaseName, null, databaseVersion);
@@ -43,10 +43,13 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion) {
         //excluir tabelas e gerar novamente
         try {
-            TableUtils.dropTable(connectionSource, Comanda_Item.class,true);
-            TableUtils.dropTable(connectionSource, Comanda.class,true);
-            TableUtils.dropTable(connectionSource, Produto.class,true);
-            TableUtils.dropTable(connectionSource, Mesa.class,true);
+            if(oldVersion == 6) {
+                TableUtils.dropTable(connectionSource, Comanda_Item.class, true);
+                TableUtils.dropTable(connectionSource, Comanda.class, true);
+            }else {
+                TableUtils.dropTable(connectionSource, Produto.class, true);
+                TableUtils.dropTable(connectionSource, Mesa.class, true);
+            }
 
             onCreate(database, connectionSource);
         } catch (SQLException e) {

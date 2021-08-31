@@ -19,7 +19,7 @@ public class Comanda {
     private String cliente;
     @DatabaseField
     private String status; //ABERTO //PARCIAL //ATENDIDO //FECHADO //FECHADO_PARCIAL
-    @DatabaseField(dataType = DataType.DATE_STRING, format = "dd/MM/yyyy hh:mm")
+    @DatabaseField(dataType = DataType.DATE_STRING, format = "dd/MM/yyyy HH:mm")
     private Date data_abertura;
     @DatabaseField
     private Integer qtde_pessoas;
@@ -34,11 +34,14 @@ public class Comanda {
     @DatabaseField
     private double valor_recebido;
 
-    @DatabaseField(dataType = DataType.DATE_STRING, format = "dd/MM/yyyy hh:mm")
+    @DatabaseField(dataType = DataType.DATE_STRING, format = "dd/MM/yyyy HH:mm")
     private Date data_recebimento;
 
     @ForeignCollectionField(eager = true)
     private Collection<Comanda_Item> items;
+
+    @DatabaseField(dataType = DataType.DATE_LONG)
+    private Date data_abertura_long;
 
     public Integer getId() {
         return id;
@@ -142,5 +145,13 @@ public class Comanda {
 
     public void setData_recebimento(Date data_recebimento) {
         this.data_recebimento = data_recebimento;
+    }
+
+    public Date getData_abertura_long() {
+        return data_abertura_long;
+    }
+
+    public void setData_abertura_long(Date data_abertura_long) {
+        this.data_abertura_long = data_abertura_long;
     }
 }
