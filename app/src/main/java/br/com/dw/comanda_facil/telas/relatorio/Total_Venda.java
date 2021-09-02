@@ -193,7 +193,7 @@ public class Total_Venda extends AppCompatActivity {
             Date d2 = dt.parse(dt.format(c2.getTime()));
 
             dao_comanda = new Dao_Comanda(banco.getConnectionSource());
-            comadas = dao_comanda.queryBuilder().where().between("data_abertura",c1.getTime(),c2.getTime()).query();
+            comadas = dao_comanda.queryBuilder().where().between("data_abertura_long",c1.getTime(),c2.getTime()).query();
             criapizza();
 
         } catch (SQLException | ParseException e) {
@@ -214,7 +214,7 @@ public class Total_Venda extends AppCompatActivity {
             Date d2 = dt.parse(dt.format(c2.getTime()));
 
             dao_comanda = new Dao_Comanda(banco.getConnectionSource());
-            comadas = dao_comanda.queryBuilder().where().between("data_abertura",c1.getTime(),c2.getTime()).query();
+            comadas = dao_comanda.queryBuilder().where().between("data_abertura_long",c1.getTime(),c2.getTime()).query();
             criapizza();
 
         } catch (SQLException | ParseException e) {

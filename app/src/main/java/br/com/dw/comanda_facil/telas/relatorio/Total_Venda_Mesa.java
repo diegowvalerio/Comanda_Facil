@@ -156,7 +156,7 @@ public class Total_Venda_Mesa extends AppCompatActivity {
                 try {
                     Date d1 = dt.parse(dt.format(c1.getTime()));
                     Date d2 = dt.parse(dt.format(c2.getTime()));
-                    comadas = dao_comanda.queryBuilder().where().between("data_abertura",c1.getTime(),c2.getTime()).and().eq("mesa",m.getId()).query();
+                    comadas = dao_comanda.queryBuilder().where().between("data_abertura_long",c1.getTime(),c2.getTime()).and().eq("mesa",m.getId()).query();
                     //Toast.makeText(this, ""+c1.getTimeInMillis(), Toast.LENGTH_SHORT).show();
                 } catch (SQLException | ParseException e) {
                     e.printStackTrace();
