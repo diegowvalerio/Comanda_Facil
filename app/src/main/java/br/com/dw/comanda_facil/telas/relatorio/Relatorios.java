@@ -38,4 +38,13 @@ public class Relatorios extends AppCompatActivity {
             Toast.makeText(this, "Nescessário acesso a internet ! ", Toast.LENGTH_SHORT).show();
         }
     }
+
+    public void rel_totalvendames(View view) throws IOException, InterruptedException {
+        if(Util.isOnline()) {
+            Intent intent = new Intent(this, Total_Venda_Mensal.class);
+            startActivity(intent);
+        }else{
+            Toast.makeText(this, "Nescessário acesso a internet ! ", Toast.LENGTH_SHORT).show();
+        }
+    }
 }

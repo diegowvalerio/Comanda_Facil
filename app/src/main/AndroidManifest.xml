@@ -18,7 +18,11 @@
         android:roundIcon="@mipmap/comanda_facil_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".telas.relatorio.Total_Venda_Mesa"></activity>
+        <activity android:name=".telas.relatorio.Total_Venda_Mensal"
+            android:screenOrientation="landscape"
+            android:configChanges="orientation|keyboardHidden">
+        </activity>
+        <activity android:name=".telas.relatorio.Total_Venda_Mesa" />
         <activity android:name=".telas.relatorio.Total_Venda" />
         <activity android:name=".telas.relatorio.Relatorios" />
         <activity android:name=".telas.comanda.Comanda_Pagamento" />

@@ -177,7 +177,7 @@ public class Total_Venda_Mesa extends AppCompatActivity {
         BarDataSet dataSet = new BarDataSet(status,"Mesas");
         dataSet.setColors(ColorTemplate.LIBERTY_COLORS);//LIBERTY_COLORS
         dataSet.setValueTextColor(Color.BLACK);
-        dataSet.setValueTextSize(8f);
+        dataSet.setValueTextSize(10f);
 
         BarData data = new BarData(dataSet);
         ValueFormatter formato = new ValueFormatter() {
