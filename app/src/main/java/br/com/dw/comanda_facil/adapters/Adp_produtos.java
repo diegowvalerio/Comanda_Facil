@@ -63,10 +63,12 @@ public class Adp_produtos extends BaseAdapter {
 
 
         BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inSampleSize = 2;
+        options.inPurgeable = true;
+        options.inSampleSize = 5;
         options.inJustDecodeBounds = false;
         byte[] b = produto.getImagem();
         imagem.setImageBitmap(BitmapFactory.decodeByteArray(b,0,b.length,options));
+        //imagem.setImageBitmap(BitmapFactory.decodeByteArray(produto.getImagem(), 0, produto.getImagem().length));
         valor.setText("R$ "+Double.toString(produto.getValor()));
 
         return view;
