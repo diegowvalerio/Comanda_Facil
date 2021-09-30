@@ -64,7 +64,7 @@ public class Adp_produtos extends BaseAdapter {
 
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPurgeable = true;
-        options.inSampleSize = 5;
+        options.inSampleSize = 3;
         options.inJustDecodeBounds = false;
         byte[] b = produto.getImagem();
         imagem.setImageBitmap(BitmapFactory.decodeByteArray(b,0,b.length,options));

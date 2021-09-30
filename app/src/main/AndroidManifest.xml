@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
+        android:largeHeap="true"
         android:allowBackup="true"
         android:icon="@mipmap/comanda_facil"
         android:label="@string/app_name"
@@ -26,7 +27,8 @@
         <activity android:name=".telas.relatorio.Relatorios" />
         <activity android:name=".telas.comanda.Comanda_Pagamento" />
         <activity android:name=".telas.comanda.Comanda_Produto" />
-        <activity android:name=".telas.comanda.Comanda_Pedido" />
+        <activity android:name=".telas.comanda.Comanda_Pedido"
+            android:windowSoftInputMode="adjustPan"/>
         <activity android:name=".telas.comanda.Comandas_Mesa" />
         <activity android:name=".telas.mesa.TelaMesa" />
         <activity

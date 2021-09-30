@@ -93,7 +93,7 @@ public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnI
     private AlertDialog alerta;
     Date d = new Date();
     int idmesa =0;
-    double total,pago,troco,desconto,recebido;
+    double total;
     int v = 0;
     final Activity activity = this;
     File pdffile = null;
@@ -111,14 +111,6 @@ public class Comanda_Pedido extends AppCompatActivity implements AdapterView.OnI
 
         vltotal = findViewById(R.id.c_vltotal);
         vltotal.setText("0");
-        vlpago = findViewById(R.id.c_vlpago);
-        vlpago.setText("0");
-        vltroco = findViewById(R.id.c_vltroco);
-        vltroco.setText("0");
-        vldesconto = findViewById(R.id.c_vldesconto);
-        vldesconto.setText("0");
-        vlrecebido = findViewById(R.id.c_vlrecebido);
-        vlrecebido.setText("0");
 
         listView = findViewById(R.id.listview_itens);
         listView.setOnItemClickListener(this);

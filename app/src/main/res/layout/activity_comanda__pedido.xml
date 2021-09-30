@@ -81,13 +81,13 @@
         android:id="@+id/textView3"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="150dp"
+        android:layout_marginBottom="8dp"
         android:background="@color/colorAccent"
         android:gravity="center"
         android:text="Total Comanda"
         android:textAllCaps="false"
         android:textStyle="bold|italic"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/c_vltotal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
@@ -98,77 +98,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
         android:text="Total:"
-        app:layout_constraintBottom_toTopOf="@+id/textView6"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView3" />
-
-    <TextView
-        android:id="@+id/textview5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:text="Pago:"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView6" />
-
-    <TextView
-        android:id="@+id/textView6"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:text="Desconto:"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView4" />
-
-    <TextView
-        android:id="@+id/c_vltroco"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:text="TextView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView3" />
-
-    <TextView
-        android:id="@+id/textView8"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:text="Troco:"
-        app:layout_constraintEnd_toStartOf="@+id/c_vltroco"
-        app:layout_constraintTop_toBottomOf="@+id/textView3" />
-
-    <TextView
-        android:id="@+id/c_vlrecebido"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:text="TextView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/c_vltroco" />
-
-    <TextView
-        android:id="@+id/textView10"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:text="Recebido:"
-        app:layout_constraintEnd_toStartOf="@+id/c_vlrecebido"
-        app:layout_constraintTop_toBottomOf="@+id/textView8" />
+        app:layout_constraintBottom_toTopOf="@+id/btn_salvarpedido"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/c_vltotal"
@@ -176,33 +109,11 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
         android:text="TextView"
         android:textSize="14sp"
-        app:layout_constraintStart_toEndOf="@+id/textView4"
-        app:layout_constraintTop_toBottomOf="@+id/textView3" />
-
-    <TextView
-        android:id="@+id/c_vldesconto"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:text="TextView"
-        app:layout_constraintStart_toEndOf="@+id/textView6"
-        app:layout_constraintTop_toBottomOf="@+id/c_vltotal" />
-
-    <TextView
-        android:id="@+id/c_vlpago"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:text="TextView"
-        app:layout_constraintStart_toEndOf="@+id/textview5"
-        app:layout_constraintTop_toBottomOf="@+id/c_vldesconto" />
+        app:layout_constraintBottom_toTopOf="@+id/btn_salvarpedido"
+        app:layout_constraintStart_toEndOf="@+id/textView4" />
 
     <ListView
         android:id="@+id/listview_itens"
@@ -210,8 +121,10 @@
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
+        android:layout_marginTop="2dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
+        android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toTopOf="@+id/textView3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

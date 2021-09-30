@@ -234,7 +234,13 @@ public class TelaProduto extends AppCompatActivity {
     }
 
     public static Bitmap rotateBitmap(String picturePath, int orientation) {
-        Bitmap bitmap =BitmapFactory.decodeFile(picturePath);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPurgeable = true;
+        options.inSampleSize = 3;
+        options.inJustDecodeBounds = false;
+
+        Bitmap bitmap =BitmapFactory.decodeFile(picturePath,options);
+
         Matrix matrix = new Matrix();
         switch (orientation) {
             case ExifInterface.ORIENTATION_NORMAL:
