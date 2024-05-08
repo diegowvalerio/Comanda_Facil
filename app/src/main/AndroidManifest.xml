@@ -3,6 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="br.com.dw.comanda_facil">
 
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CAMERA" />
@@ -41,7 +45,8 @@
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:windowSoftInputMode="stateHidden" />
         <activity android:name=".telas.Principal" />
-        <activity android:name=".telas.Inicial">
+        <activity android:name=".telas.Inicial"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
