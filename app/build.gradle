@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 33
+    compileSdkVersion 34
 
     defaultConfig {
         applicationId "br.com.dw.comanda_facil"
         minSdkVersion 16
         targetSdkVersion 33
-        versionCode 7
+        versionCode 9
         versionName "1.1"
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
